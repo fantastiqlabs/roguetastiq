@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Fantastiq mark</title>
+  <path d="M32 2 38 22 56 10 45 28 64 32 45 37 56 55 38 43 32 62 26 43 8 55 19 37 0 32 19 28 8 10 26 22Z" fill="#d75236"/>
+  <circle cx="32" cy="32" r="8" fill="#d9f06a" stroke="#202321" stroke-width="3"/>
+</svg>

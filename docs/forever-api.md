@@ -16,13 +16,13 @@ Primary source: [Gethe/wow-ui-source, Forever BuffFrame.lua](https://github.com/
 
 ## Poison and stone catalog scope
 
-Forever databases currently list the established poison families (Instant, Deadly, Wound, Crippling, and Mind-numbing) and Forever additions including Atrophic, Occult, Numbing, and Sebacious. Rank availability varies by family and current character level/training. The catalog should be data-driven and include only items actually present in the Forever client; use in-client item data as the release authority.
+The selector will include only poisons currently learnable from a Rogue poison trainer on WoW: Forever. Being present in client files is not enough: client data can retain recipes that are not offered by Forever trainers. Current trainer and recipe observations cover the Instant, Deadly, Wound, Crippling, and Mind-numbing families; ranks are gated by skill and character level. Atrophic, Occult, Numbing, and Sebacious entries marked as not seen at a Forever trainer are excluded until their in-game availability is confirmed.
 
 Sharpening stone choices include Rough, Coarse, Heavy, Solid, Dense, and Elemental Sharpening Stones. Do not include weightstones as sharpening stones: they are distinct weapon coatings and need a separate decision if support is desired.
 
-These catalog names come from current community databases and should be cross-checked against Blizzard’s client data before item IDs are shipped:
+The family and trainer availability snapshot is from current Forever game-data observations; check it against in-game trainers before adding or removing a rank:
 
-- [Forever consumables catalog](https://metaforge.app/wow-forever/database/consumables?sub=Poisons)
+- [ForeverDB Rogue poison guide](https://foreverdb.net/class/Rogue/poisons)
 - [WoW Forever poisons recipes](https://thewowdb.com/wow-forever/professions/poisons/)
 - [WoW Forever blacksmithing recipes](https://www.wowhead.com/forever/guide/professions/blacksmithing)
 

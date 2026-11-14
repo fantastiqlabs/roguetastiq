@@ -1,25 +1,64 @@
-# Roguetastiq
+<p align="center">
+  <img src="assets/fantastiq-mark.svg" alt="Fantastiq Labs" width="132" />
+</p>
 
-Roguetastiq is a minimal World of Warcraft: Forever rogue addon for keeping weapon coatings ready. Its two compact controls represent Main Hand and Off Hand and report poison and sharpening-stone time/charges. They appear when a configured low threshold is reached.
+<h1 align="center">Roguetastiq</h1>
 
-## Planned behavior
+<p align="center"><strong>The giga rogue toolkit!</strong><br />Keep both blades ready with poison, sharpening-stone, and rogue-supply reminders for World of Warcraft: Forever.</p>
 
-- Track Forever weapon imbues and temporary weapon enchants separately for both hands.
-- Configure time and charge warning thresholds.
-- Map normal, Shift, Ctrl, and Alt clicks to per-hand poison or stone choices; prefer the highest configured rank the character has in their bags.
-- Calculate the exact reagent shopping list for a selected number of poison crafts, including current bag counts and vendor availability.
-- Provide a vendor view that helps buy chosen quantities after the player explicitly starts the action.
+<p align="center">
+  <a href="https://github.com/fantastiqlabs/roguetastiq/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/fantastiqlabs/roguetastiq?include_prereleases&label=release"></a>
+  <img alt="License" src="https://img.shields.io/badge/license-pending-lightgrey">
+  <img alt="World of Warcraft Forever" src="https://img.shields.io/badge/WoW-Forever-8b6bce">
+</p>
 
-The addon will not make decisions or purchases when the vendor merely opens. The shopping calculator is the initial vendor feature; in-game purchasing behavior must follow the client’s protected-action rules and will be verified before it is enabled.
+---
 
-## Status
+Roguetastiq keeps the two essentials visible and the rest out of the way. Its Main Hand and Off Hand indicators show poison and stone time/charges, then appear when a configured warning threshold is reached.
 
-Project bootstrap and client research are in progress. The Forever API has a modern `C_Item.GetWeaponEnchantInfo(slot)` API that returns all weapon enchantments, including enchant category, remaining milliseconds, charges, and icon/ID data. See [Forever API notes](docs/forever-api.md).
+## What it will do
+
+- Track poison and sharpening-stone status independently on both weapons.
+- Let you set time and charge warnings.
+- Map normal, Shift, Ctrl, and Alt clicks to your chosen coating and priority for each hand.
+- Prefer the highest rank you have in your bags within each selected poison family.
+- Calculate the ingredients for a chosen batch of trainer-taught poisons. For example, plan a batch of 20 and see the exact total, what you already carry, and what to buy from a poison vendor.
+- Open a rogue macro library, copy a popular macro, and optionally add `/laugh` to generated Cheap Shot and Blind macros.
+- Get Fadeleaf reminders around vendors and the Auction House, plus a low Flash Powder reminder.
+
+The poison picker is restricted to poisons Rogues can currently learn from a poison trainer in WoW: Forever. Entries found only in unused client data stay out of the picker.
+
+## Release 0.0.1
+
+The first public development preview includes the two hand indicators, configurable time and charge thresholds, and Forever API research. Modifier-based item application, the verified poison catalog, ingredient calculator, supply reminders, and macro builder are still in development. This release has not yet been loaded in the live game client.
+
+Every version gets a tagged release and downloadable ZIP from the start. Roguetastiq follows SemVer beginning at `0.0.1`; releases stay marked as pre-releases until the in-game smoke check is recorded. See [the changelog](CHANGELOG.md).
 
 ## Install
 
-Copy the `Roguetastiq` directory into the Forever client’s `Interface/AddOns/` directory. The current shell is only a project scaffold; verify the exact client interface number in game with `/dump select(4, GetBuildInfo())` before packaging.
+1. Download the ZIP from [Releases](https://github.com/fantastiqlabs/roguetastiq/releases).
+2. Extract the `Roguetastiq` folder into the Forever client’s `Interface/AddOns/` directory.
+3. Restart or reload the UI, then enable **Roguetastiq** on the character selection screen if needed.
 
-## Source and documentation
+Check the client interface number in game with `/dump select(4, GetBuildInfo())`. The current TOC targets `16001`; update that value if the live client has moved on.
 
-Implementation source lives in this repository. Keep research and user guides in `docs/`; once the GitHub repository is created, register it as a Doctastiq source and follow the Doctastiq documentation publishing routine.
+## Configure the preview
+
+Use `/rt time 300` to set the low-time threshold in seconds, `/rt charges 10` for the low-charge threshold, and `/rt poison on|off` or `/rt stone on|off` to enable each warning. Drag the indicators to move them.
+
+## Build from source
+
+```sh
+python3 scripts/package.py
+```
+
+The script writes a versioned archive to `dist/`. The archive contains only the addon files, ready to copy into `Interface/AddOns/`.
+
+## Research and feedback
+
+- [Forever API and item research](docs/forever-api.md)
+- [Rogue macro library research](docs/rogue-macros.md)
+- [Product scope and interaction rules](docs/product-scope.md)
+- [Open issues](https://github.com/fantastiqlabs/roguetastiq/issues)
+
+Roguetastiq is a Fantastiq Labs project. Please report client errors with the game build, poison family/rank, hand, and the steps that triggered the issue.
