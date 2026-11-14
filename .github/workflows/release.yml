@@ -4,13 +4,22 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to announce (for example v0.0.3)
+        required: true
+        type: string
 
 permissions:
   contents: write
 
 jobs:
   release:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -32,3 +41,12 @@ jobs:
           if [[ "${GITHUB_REF_NAME}" == v0.* ]]; then args+=(--prerelease); fi
           gh release create "${GITHUB_REF_NAME}" dist/*.zip \
             --title "${GITHUB_REF_NAME}" --generate-notes "${args[@]}"
+  announce:
+    needs: release
+    if: always() && (needs.release.result == 'success' || github.event_name == 'workflow_dispatch')
+    uses: ./.github/workflows/discord-release-reusable.yml
+    with:
+      project_name: "Roguetastiq"
+      tag: ${{ inputs.tag || github.ref_name }}
+    secrets:
+      FANTASTIQLABS_DISCORD_WEBHOOK: ${{ secrets.FANTASTIQLABS_DISCORD_WEBHOOK }}

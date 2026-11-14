@@ -7,6 +7,10 @@ on:
         description: App or project name shown as the Discord embed header
         required: true
         type: string
+      tag:
+        description: Release tag to announce
+        required: true
+        type: string
     secrets:
       FANTASTIQLABS_DISCORD_WEBHOOK:
         required: true
@@ -21,11 +25,9 @@ jobs:
       - name: Post release card
         shell: bash
         env:
+          GH_TOKEN: ${{ github.token }}
           FANTASTIQLABS_DISCORD_WEBHOOK: ${{ secrets.FANTASTIQLABS_DISCORD_WEBHOOK }}
-          RELEASE_NAME: ${{ github.event.release.name }}
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
-          RELEASE_URL: ${{ github.event.release.html_url }}
-          RELEASE_BODY: ${{ github.event.release.body }}
+          RELEASE_TAG: ${{ inputs.tag }}
           PROJECT_NAME: ${{ inputs.project_name }}
         run: |
           set -euo pipefail
@@ -33,7 +35,10 @@ jobs:
             echo "Fantastiq Labs Discord webhook secret is empty." >&2
             exit 1
           fi
-          release_title="${RELEASE_NAME:-$RELEASE_TAG}"
+          release_data="$(gh release view "$RELEASE_TAG" --json name,tagName,url,body)"
+          release_title="$(jq -r '.name // .tagName' <<< "$release_data")"
+          RELEASE_URL="$(jq -r '.url' <<< "$release_data")"
+          RELEASE_BODY="$(jq -r '.body // empty' <<< "$release_data")"
           release_title="${release_title:0:240}"
           description="${RELEASE_BODY:0:3800}"
           if [[ -z "$description" ]]; then
