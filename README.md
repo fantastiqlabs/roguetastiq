@@ -36,9 +36,16 @@ Every version gets a tagged release and downloadable ZIP from the start. Rogueta
 
 ## Install
 
-1. Download the ZIP from [Releases](https://github.com/fantastiqlabs/roguetastiq/releases).
-2. Extract the `Roguetastiq` folder into the Forever client’s `Interface/AddOns/` directory.
-3. Restart or reload the UI, then enable **Roguetastiq** on the character selection screen if needed.
+1. Open [Releases](https://github.com/fantastiqlabs/roguetastiq/releases) and download **`Roguetastiq_0.0.1.zip`** from the release Assets. Do not download GitHub's separate **Source code** archive.
+2. Extract the ZIP into the Forever client’s `Interface/AddOns/` directory.
+3. Confirm these two files sit directly in the `Roguetastiq` folder (with no extra folder level):
+
+   ```text
+   <Forever client folder>/Interface/AddOns/Roguetastiq/Roguetastiq.toc
+   <Forever client folder>/Interface/AddOns/Roguetastiq/Roguetastiq.lua
+   ```
+
+4. Restart the Forever client and enable **Roguetastiq** on the character selection screen if needed.
 
 Check the client interface number in game with `/dump select(4, GetBuildInfo())`. The current TOC targets `16001`; update that value if the live client has moved on.
 
