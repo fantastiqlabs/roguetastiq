@@ -645,11 +645,12 @@ function ns.InitializeInterface()
 		{ key = "macros", label = "Macros" },
 		{ key = "settings", label = "Addon Settings" },
 		{ key = "pvp", label = "PvP" },
+		{ key = "maps", label = "Maps" },
 	}
 	local pages, tabs = {}, {}
 	for index, spec in ipairs(tabSpecs) do
-		local tab = createButton(settingsCanvas, spec.label, 150, 28,
-			"TOPLEFT", settingsCanvas, "TOPLEFT", 20 + (index - 1) * 158, -42)
+		local tab = createButton(settingsCanvas, spec.label, 132, 28,
+			"TOPLEFT", settingsCanvas, "TOPLEFT", 20 + (index - 1) * 138, -42)
 		local page = CreateFrame("Frame", nil, settingsCanvas)
 		page:SetSize(680, 555)
 		page:SetPoint("TOPLEFT", settingsCanvas, "TOPLEFT", 20, -78)
@@ -789,6 +790,37 @@ function ns.InitializeInterface()
 	font(optionsPanel, "Uses WoW's resting-area state; includes inns.",
 		"GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -205)
 	createContactSection()
+
+	optionsPanel = pages.maps
+	font(optionsPanel, "NPC MAP MARKERS", "GameFontNormal", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -8)
+	local mapDescription = font(optionsPanel,
+		"Show Forever-seen Shady Dealers, poison reagent vendors, and Rogue trainers on the world map and minimap.",
+		"GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -32)
+	mapDescription:SetWidth(640)
+	mapDescription:SetWordWrap(true)
+	local function mapToggle(key, label, x, y)
+		local toggle = CreateFrame("CheckButton", nil, optionsPanel, "UICheckButtonTemplate")
+		toggle:SetSize(24, 24)
+		toggle:SetPoint("TOPLEFT", optionsPanel, "TOPLEFT", x, y)
+		local text = font(optionsPanel, label, "GameFontHighlight", "LEFT", toggle, "RIGHT", 4, 0)
+		text:SetWidth(230)
+		toggle:SetChecked(RoguetastiqDB[key] ~= false)
+		toggle:SetScript("OnClick", function(self)
+			RoguetastiqDB[key] = self:GetChecked()
+			ns.RefreshMapMarkers()
+		end)
+	end
+	mapToggle("mapMarkersEnabled", "World map markers", 16, -76)
+	mapToggle("minimapMarkersEnabled", "Minimap markers", 350, -76)
+	font(optionsPanel, "MARKER CATEGORIES", "GameFontNormal", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -126)
+	mapToggle("mapShowShadyDealer", "Shady Dealers", 16, -150)
+	mapToggle("mapShowPoisonVendor", "Poison reagent vendors", 16, -184)
+	mapToggle("mapShowRogueTrainer", "Rogue trainers", 16, -218)
+	local mapNote = font(optionsPanel,
+		"NPC locations are sourced from Forever observations. Coordinates can vary by client build; report missing or misplaced pins before release.",
+		"GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -254)
+	mapNote:SetWidth(640)
+	mapNote:SetWordWrap(true)
 
 	optionsPanel = pages.pvp
 	createThreatAlertSection()

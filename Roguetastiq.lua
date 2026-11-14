@@ -12,6 +12,11 @@ local defaults = {
 	shoppingCount = 20,
 	autoBuyMaterials = false,
 	vendorPopupEnabled = true,
+	mapMarkersEnabled = true,
+	minimapMarkersEnabled = true,
+	mapShowShadyDealer = true,
+	mapShowPoisonVendor = true,
+	mapShowRogueTrainer = true,
 	macroTemplate = "kick",
 	macroStorageScope = "character",
 	laughInMacros = false,
@@ -241,7 +246,8 @@ end
 local events = CreateFrame("Frame")
 for _, event in ipairs({ "PLAYER_LOGIN", "PLAYER_ENTERING_WORLD", "PLAYER_EQUIPMENT_CHANGED",
 	"UNIT_AURA", "UNIT_INVENTORY_CHANGED", "BAG_UPDATE_DELAYED", "PLAYER_REGEN_ENABLED",
-	"MERCHANT_SHOW", "MERCHANT_UPDATE", "MERCHANT_CLOSED" }) do
+	"MERCHANT_SHOW", "MERCHANT_UPDATE", "MERCHANT_CLOSED", "ZONE_CHANGED_NEW_AREA",
+	"MINIMAP_UPDATE_ZOOM" }) do
 	events:RegisterEvent(event)
 end
 events:SetScript("OnEvent", function(_, event, unit)
@@ -250,6 +256,7 @@ events:SetScript("OnEvent", function(_, event, unit)
 		mergeDefaults(RoguetastiqDB, defaults)
 		ns.InitializeInterface()
 		ns.InitializeShopping()
+		ns.InitializeMaps()
 		ns.RefreshSecureActions()
 		ns.Render()
 		if not ticker then ticker = C_Timer.NewTicker(1, function()
@@ -274,6 +281,7 @@ events:SetScript("OnEvent", function(_, event, unit)
 		ns.CloseVendorShopping()
 	else
 		if event == "BAG_UPDATE_DELAYED" or event == "MERCHANT_UPDATE" then ns.RefreshVendorShopping() end
+		if event == "ZONE_CHANGED_NEW_AREA" or event == "MINIMAP_UPDATE_ZOOM" then ns.RefreshMapMarkers() end
 		ns.RefreshSecureActions()
 		ns.Render()
 	end
