@@ -215,7 +215,7 @@ local function createShoppingPlanner()
 		local recipe, materials = ns.BuildShoppingList(RoguetastiqDB.shoppingRecipeKey or "instant6", RoguetastiqDB.shoppingCount or 20)
 		shoppingRecipeDropdown:Refresh()
 		shoppingCountLabel:SetText(tostring(RoguetastiqDB.shoppingCount or 20))
-		shoppingSummary:SetText(string.format("For %d x %s (no items are purchased automatically):", RoguetastiqDB.shoppingCount or 20, recipe.label))
+		shoppingSummary:SetText(string.format("For %d x %s | reagents only:", RoguetastiqDB.shoppingCount or 20, recipe.label))
 		for index, row in ipairs(shoppingRows) do
 			local material = materials[index]
 			if material then
@@ -225,6 +225,7 @@ local function createShoppingPlanner()
 				row:Hide()
 			end
 		end
+		if ns.RefreshVendorShopping then ns.RefreshVendorShopping() end
 	end
 	ns.RefreshShoppingPlanner = updateShopping
 	updateShopping()
@@ -702,6 +703,40 @@ function ns.InitializeInterface()
 		"GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -330)
 	font(optionsPanel, "POISON SHOPPING PLANNER", "GameFontNormal", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -354)
 	createShoppingPlanner()
+	local autoBuyToggle = CreateFrame("CheckButton", "RoguetastiqAutoBuyMaterials", optionsPanel, "UICheckButtonTemplate")
+	autoBuyToggle:SetSize(24, 24)
+	autoBuyToggle:SetPoint("TOPLEFT", optionsPanel, "TOPLEFT", 16, -516)
+	local autoBuyLabel = font(optionsPanel, "Auto-buy on vendor open (off)",
+		"GameFontHighlightSmall", "LEFT", autoBuyToggle, "RIGHT", 2, 0)
+	autoBuyLabel:SetWidth(245)
+	autoBuyToggle:SetChecked(RoguetastiqDB.autoBuyMaterials == true)
+	autoBuyToggle:SetScript("OnClick", function(self)
+		RoguetastiqDB.autoBuyMaterials = self:GetChecked()
+		if ns.RefreshVendorShopping then ns.RefreshVendorShopping() end
+	end)
+	autoBuyToggle:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+		GameTooltip:AddLine("Automatic reagent shopping", 1, 1, 1)
+		GameTooltip:AddLine("When enabled, opening a supported poison vendor requests only the currently previewed missing reagents. No poison is crafted.", 1, 1, 1, true)
+		GameTooltip:Show()
+	end)
+	autoBuyToggle:SetScript("OnLeave", GameTooltip_Hide)
+	local popupToggle = CreateFrame("CheckButton", "RoguetastiqVendorPopupEnabled", optionsPanel, "UICheckButtonTemplate")
+	popupToggle:SetSize(24, 24)
+	popupToggle:SetPoint("TOPLEFT", optionsPanel, "TOPLEFT", 350, -516)
+	local popupLabel = font(optionsPanel, "Show vendor popup", "GameFontHighlightSmall", "LEFT", popupToggle, "RIGHT", 2, 0)
+	popupToggle:SetChecked(RoguetastiqDB.vendorPopupEnabled ~= false)
+	popupToggle:SetScript("OnClick", function(self)
+		RoguetastiqDB.vendorPopupEnabled = self:GetChecked()
+		if ns.RefreshVendorShopping then ns.RefreshVendorShopping() end
+	end)
+	popupToggle:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+		GameTooltip:AddLine("Poison-vendor shopping popup", 1, 1, 1)
+		GameTooltip:AddLine("Show the reagent quantities and purchase controls when a supported poison reagent vendor is open.", 1, 1, 1, true)
+		GameTooltip:Show()
+	end)
+	popupToggle:SetScript("OnLeave", GameTooltip_Hide)
 
 	optionsPanel = pages.macros
 	createMacroSection()

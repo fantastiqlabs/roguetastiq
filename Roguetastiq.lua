@@ -10,6 +10,8 @@ local defaults = {
 	barScale = 1,
 	shoppingRecipeKey = "instant6",
 	shoppingCount = 20,
+	autoBuyMaterials = false,
+	vendorPopupEnabled = true,
 	macroTemplate = "kick",
 	macroStorageScope = "character",
 	laughInMacros = false,
@@ -238,7 +240,8 @@ end
 
 local events = CreateFrame("Frame")
 for _, event in ipairs({ "PLAYER_LOGIN", "PLAYER_ENTERING_WORLD", "PLAYER_EQUIPMENT_CHANGED",
-	"UNIT_AURA", "UNIT_INVENTORY_CHANGED", "BAG_UPDATE_DELAYED", "PLAYER_REGEN_ENABLED" }) do
+	"UNIT_AURA", "UNIT_INVENTORY_CHANGED", "BAG_UPDATE_DELAYED", "PLAYER_REGEN_ENABLED",
+	"MERCHANT_SHOW", "MERCHANT_UPDATE", "MERCHANT_CLOSED" }) do
 	events:RegisterEvent(event)
 end
 events:SetScript("OnEvent", function(_, event, unit)
@@ -246,6 +249,7 @@ events:SetScript("OnEvent", function(_, event, unit)
 		RoguetastiqDB = RoguetastiqDB or {}
 		mergeDefaults(RoguetastiqDB, defaults)
 		ns.InitializeInterface()
+		ns.InitializeShopping()
 		ns.RefreshSecureActions()
 		ns.Render()
 		if not ticker then ticker = C_Timer.NewTicker(1, function()
@@ -263,7 +267,13 @@ events:SetScript("OnEvent", function(_, event, unit)
 		end
 	elseif event == "UNIT_AURA" then
 		if unit == "player" then ns.Render() end
+	elseif event == "MERCHANT_SHOW" then
+		ns.OnMerchantShow()
+		if RoguetastiqDB.autoBuyMaterials then ns.AutoBuyVendorMaterials() end
+	elseif event == "MERCHANT_CLOSED" then
+		ns.CloseVendorShopping()
 	else
+		if event == "BAG_UPDATE_DELAYED" or event == "MERCHANT_UPDATE" then ns.RefreshVendorShopping() end
 		ns.RefreshSecureActions()
 		ns.Render()
 	end

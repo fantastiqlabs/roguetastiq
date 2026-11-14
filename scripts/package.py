@@ -14,6 +14,7 @@ version = next(
 files = [
     TOC,
     ROOT / "RoguetastiqCatalog.lua",
+    ROOT / "RoguetastiqShopping.lua",
     ROOT / "Roguetastiq.lua",
     ROOT / "RoguetastiqOptions.lua",
 ]
