@@ -2,19 +2,18 @@
 
 Product title: **Roguetastiq - The giga rogue toolkit!**
 
-## First release
+## Core addon
 
-1. One compact application bar with Main Hand and Off Hand buttons joined side by side and separated by a clear center divider. Keep the full bar narrow.
-2. Each hand button displays two coating icons (poison and stone), with a diagonal visual split and compact duration/charge labels. Use the selected item icon when no coating is applied.
-3. Independently select whether low/missing poison, low/missing stone, or both trigger the bar. A disabled category must not pop the bar open. Let the minimap button expose it manually when the user wants to reapply early.
-4. Add a minimap button. Left-click opens Roguetastiq settings; right-click toggles the application bar.
-5. Register the same options panel under **Interface → AddOns** and let the minimap button open that page. The panel configures warning thresholds and every unmodified/Shift/Ctrl/Alt click on both hand buttons.
-6. Each hand/modifier mapping selects poison family or stone type. Choose the highest rank carried in bags within the selected trainer-taught poison family.
-7. A poison recipe catalog and reagent calculator. Choose a trainer-taught poison and target craft count (for example, 20); show total materials, bag counts, and remaining shopping quantities.
-8. Vendor-aware shopping view that marks which missing reagents are sold by the currently open poison vendor.
-9. An in-addon Rogue macro library/builder with copyable, Forever-checked macros such as focus Kick, mouseover Sap, stealth, and Pick Pocket/openers.
-10. An optional **Add /laugh** setting for generated Cheap Shot and Blind macros. It changes only the copied macro text; Roguetastiq never runs emotes itself.
-11. Fadeleaf reminders while browsing vendors or the Auction House, last-paid price hints when reliable transaction data is available, and a configurable low Flash Powder warning.
+1. One compact Main Hand/Off Hand application bar with a clear center divider and poison/stone status icons.
+2. Independently configure whether low or missing poison and stone trigger the bar. A disabled category must not show it. A manual toggle can expose it early.
+3. Register all configuration under **Interface → AddOns → Roguetastiq**. Every requested feature must expose the relevant enable, scope, selection, threshold, or presentation control in this screen and use a sensible per-character default.
+4. Let the player unlock the bar, drag a visible grip to any screen position, persist that position per character, and lock it again. Offer small, standard, and large size presets.
+5. Configure every normal/Shift/Ctrl/Alt action for each hand with dropdown menus. Select trainer-taught poison families or sharpening stones; use the highest poison rank carried in bags.
+6. Provide a poison shopping planner: select a recipe and target craft count, then show recipe materials, bag counts, and the remaining amounts to buy. Opening a vendor never buys anything.
+7. Provide selectable, editable Rogue macro previews for stealth, Sap, Pick Pocket, start attack, cooldown/racial combinations, weapon swaps, and dagger Ambush/Backstab. Support configurable food and racial placeholders and optional `/laugh` in Cheap Shot and Blind. The player copies text into WoW's macro UI.
+8. Provide a toggleable sound alert for opposing-faction players, configurable for open world, battlegrounds/arenas, dungeons/raids, or everywhere. Detection is limited to visible enemy nameplates.
+9. Show in-game mail feedback contact details and a copyable GitHub repository link in the options screen.
+10. Fadeleaf reminders near vendors/Auction House, last-paid price hints when reliable transaction data is available, and a configurable low Flash Powder warning.
 
 ## Interaction boundary
 
@@ -22,10 +21,11 @@ All item use and purchases must result from an explicit user hardware click. Ope
 
 ## Releases
 
-Use SemVer, beginning at `0.0.1`. Publish a tagged ZIP for every version from the first development preview onward. Keep releases marked pre-release until the current live client smoke-test checklist is complete.
+Use SemVer, beginning at `0.0.1`. Publish a tagged ZIP for every version from the first development preview onward. Announce published GitHub releases to the Fantastiq Labs Discord project-updates channel when the required Actions webhook secret is configured. Keep releases marked pre-release until the current live client smoke-test checklist is complete.
 
 ## Follow-up
 
+- Verify interactions in the live Forever client, including combat lockdown, item targeting, saved bar placement, opponent alerts, macro ordering, and shopping counts.
 - Add automatic catalog refresh/build from verified game data and patch snapshots.
 - Add localized item names and supported locale coverage.
-- Verify interactions in the live Forever client, including combat lockdown and item-targeting behavior.
+- Finish vendor-sold reagent detection, Fadeleaf transaction data, and low Flash Powder reminders.

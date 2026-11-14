@@ -26,17 +26,17 @@ The family and trainer availability snapshot is from current Forever game-data o
 - [WoW Forever poisons recipes](https://thewowdb.com/wow-forever/professions/poisons/)
 - [WoW Forever blacksmithing recipes](https://www.wowhead.com/forever/guide/professions/blacksmithing)
 
-## Vendor material calculator
+## Poison recipe shopping calculator
 
-The requested initial behavior is a shopping calculator: choose how many poisons to craft, read each recipe’s reagent quantities, subtract reagents already in the bags, and show the exact amount still needed. A vendor-facing view may show which missing materials this vendor sells. Merely opening a vendor must never trigger a purchase. Any future purchase button must be an explicit player click, use the vendor’s current price/stock, and be verified against Forever’s protected-action behavior.
+The calculator uses a versioned catalog of trainer-taught recipes. Select a poison rank and target count, multiply the reagents per craft, subtract items already in the bags, and show the remaining shopping amounts. It is informational: opening a vendor never purchases anything. Vendor-specific sold-item annotations remain follow-up work.
 
-Recipe reagents are subject to change. The exact reagent mapping and per-rank craft yield need a versioned catalog checked against current client data before the calculator can be considered complete.
+Recipe quantities and material item IDs are based on the current Forever client extraction published in [WoW Forever Guides](https://wowforeverguides.com/professions/poisons) (build 1.60.1.70862) and cross-checked against [TheWoWDB Forever poison table](https://thewowdb.com/wow-forever/professions/poisons/) (build 1.60.1.70124). These are community mirrors of client data, not Blizzard documentation. Keep the client build recorded with catalog changes and verify recipes in game before treating the calculator as authoritative.
 
 ## Known verification gaps
 
 - Exact live interface number and Forever patch/build.
 - In-game handling of multiple simultaneous coatings per hand and secret/opaque values.
-- Complete item IDs and reagent recipes for every current poison rank and sharpening stone.
+- Verify every catalog recipe, item ID, and reagent count against a live character and current client build.
 - Secure click behavior for modifier-based item application and item targeting to a chosen weapon.
 - Vendor API behavior, whether bulk purchases can be initiated by one deliberate click, and whether the client limits repeated protected calls.
 - Live UI sizing, drag persistence, threshold behavior, and reload persistence.

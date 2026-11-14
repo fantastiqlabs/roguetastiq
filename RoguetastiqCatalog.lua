@@ -18,6 +18,40 @@ local catalog = {
 	},
 }
 
+catalog.materials = {
+	[2928] = "Dust of Decay",
+	[2930] = "Essence of Pain",
+	[3371] = "Empty Vial",
+	[3372] = "Leaded Vial",
+	[5173] = "Deathweed",
+	[8923] = "Essence of Agony",
+	[8924] = "Dust of Deterioration",
+	[8925] = "Crystal Vial",
+}
+
+catalog.recipes = {
+	{ key = "crippling1", label = "Crippling Poison", itemID = 3775, reagents = { { 2930, 1 }, { 3371, 1 } } },
+	{ key = "instant1", label = "Instant Poison", itemID = 6947, reagents = { { 2928, 1 }, { 3371, 1 } } },
+	{ key = "mindnumbing1", label = "Mind-numbing Poison", itemID = 5237, reagents = { { 2928, 1 }, { 2930, 1 }, { 3371, 1 } } },
+	{ key = "instant2", label = "Instant Poison II", itemID = 6949, reagents = { { 2928, 3 }, { 3372, 1 } } },
+	{ key = "deadly1", label = "Deadly Poison", itemID = 2892, reagents = { { 5173, 1 }, { 3372, 1 } } },
+	{ key = "wound1", label = "Wound Poison", itemID = 10918, reagents = { { 2930, 1 }, { 5173, 1 }, { 3372, 1 } } },
+	{ key = "instant3", label = "Instant Poison III", itemID = 6950, reagents = { { 8924, 1 }, { 3372, 1 } } },
+	{ key = "deadly2", label = "Deadly Poison II", itemID = 2893, reagents = { { 5173, 2 }, { 3372, 1 } } },
+	{ key = "mindnumbing2", label = "Mind-numbing Poison II", itemID = 6951, reagents = { { 2928, 4 }, { 2930, 4 }, { 3372, 1 } } },
+	{ key = "wound2", label = "Wound Poison II", itemID = 10920, reagents = { { 2930, 1 }, { 5173, 2 }, { 3372, 1 } } },
+	{ key = "instant4", label = "Instant Poison IV", itemID = 8926, reagents = { { 8924, 2 }, { 8925, 1 } } },
+	{ key = "deadly3", label = "Deadly Poison III", itemID = 8984, reagents = { { 5173, 3 }, { 8925, 1 } } },
+	{ key = "wound3", label = "Wound Poison III", itemID = 10921, reagents = { { 8923, 1 }, { 5173, 2 }, { 8925, 1 } } },
+	{ key = "crippling2", label = "Crippling Poison II", itemID = 3776, reagents = { { 8923, 3 }, { 8925, 1 } } },
+	{ key = "instant5", label = "Instant Poison V", itemID = 8927, reagents = { { 8924, 3 }, { 8925, 1 } } },
+	{ key = "mindnumbing3", label = "Mind-numbing Poison III", itemID = 9186, reagents = { { 8924, 2 }, { 8923, 2 }, { 8925, 1 } } },
+	{ key = "deadly4", label = "Deadly Poison IV", itemID = 8985, reagents = { { 5173, 5 }, { 8925, 1 } } },
+	{ key = "wound4", label = "Wound Poison IV", itemID = 10922, reagents = { { 8923, 2 }, { 5173, 2 }, { 8925, 1 } } },
+	{ key = "instant6", label = "Instant Poison VI", itemID = 8928, reagents = { { 8924, 4 }, { 8925, 1 } } },
+}
+table.sort(catalog.recipes, function(a, b) return a.label < b.label end)
+
 local bags = {}
 for bag = 0, NUM_BAG_SLOTS or 4 do
 	bags[#bags + 1] = bag
@@ -66,11 +100,16 @@ function ns.GetChoiceIcon(choice)
 end
 
 catalog.options = {}
+catalog.optionsByKey = {}
 for key, value in pairs(catalog.poisons) do
-	catalog.options[#catalog.options + 1] = { kind = "poison", key = key, label = value.label .. " · highest in bags" }
+	local option = { kind = "poison", key = key, label = value.label .. " · highest in bags", buttonLabel = value.label }
+	catalog.options[#catalog.options + 1] = option
+	catalog.optionsByKey["poison:" .. key] = option
 end
 for key, value in pairs(catalog.stones) do
-	catalog.options[#catalog.options + 1] = { kind = "stone", key = key, label = value.label }
+	local option = { kind = "stone", key = key, label = value.label, buttonLabel = value.label }
+	catalog.options[#catalog.options + 1] = option
+	catalog.optionsByKey["stone:" .. key] = option
 end
 table.sort(catalog.options, function(a, b) return a.label < b.label end)
 
@@ -79,6 +118,32 @@ function ns.CoatingChoiceLabel(choice)
 	local group = catalog[choice.kind .. "s"]
 	local item = group and group[choice.key]
 	return item and (choice.kind == "poison" and (item.label .. " · highest in bags") or item.label) or "Unconfigured"
+end
+
+function ns.FindRecipe(key)
+	for _, recipe in ipairs(catalog.recipes) do
+		if recipe.key == key then return recipe end
+	end
+	return catalog.recipes[1]
+end
+
+function ns.BuildShoppingList(recipeKey, count)
+	local recipe = ns.FindRecipe(recipeKey)
+	local shoppingList = {}
+	count = math.max(1, math.floor(tonumber(count) or 1))
+	for _, reagent in ipairs(recipe.reagents) do
+		local itemID, perCraft = reagent[1], reagent[2]
+		local needed = perCraft * count
+		local have = ns.CountItemInBags(itemID)
+		shoppingList[#shoppingList + 1] = {
+			itemID = itemID,
+			name = catalog.materials[itemID],
+			required = needed,
+			have = have,
+			buy = math.max(0, needed - have),
+		}
+	end
+	return recipe, shoppingList
 end
 
 ns.Catalog = catalog

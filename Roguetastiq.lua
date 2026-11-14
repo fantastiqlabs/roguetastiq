@@ -6,6 +6,16 @@ local defaults = {
 	poisonWarnings = true,
 	stoneWarnings = true,
 	forceVisible = false,
+	barLocked = true,
+	barScale = 1,
+	shoppingRecipeKey = "instant6",
+	shoppingCount = 20,
+	macroTemplate = "kick",
+	laughInMacros = false,
+	macroRacial = "none",
+	macroFoodName = "Food Name",
+	playerAlertEnabled = false,
+	playerAlertContext = "world",
 	minimapAngle = 220,
 	barX = 0,
 	barY = -140,
@@ -33,6 +43,43 @@ local hands = {
 local modifierNames = { "left", "shift", "ctrl", "alt" }
 local updatePending = false
 local ticker
+local hostilePlayersPresent = false
+local lastHostileAlert = 0
+
+local function contextMatchesAlert()
+	local inInstance, instanceType = IsInInstance()
+	local context = RoguetastiqDB.playerAlertContext
+	if context == "all" then return true end
+	if context == "world" then return not inInstance end
+	if context == "battlegrounds" then return instanceType == "pvp" or instanceType == "arena" end
+	if context == "instances" then return inInstance and instanceType ~= "pvp" and instanceType ~= "arena" end
+	return false
+end
+
+function ns.CheckHostilePlayers()
+	if not RoguetastiqDB or not RoguetastiqDB.playerAlertEnabled or not contextMatchesAlert() then
+		hostilePlayersPresent = false
+		return
+	end
+	local playerFaction = UnitFactionGroup("player")
+	local detected = false
+	for index = 1, 40 do
+		local unit = "nameplate" .. index
+		if UnitExists(unit) and UnitIsPlayer(unit) then
+			local faction = UnitFactionGroup(unit)
+			local opposite = faction and playerFaction and faction ~= playerFaction
+			if opposite or (not faction and UnitIsEnemy("player", unit)) then
+				detected = true
+				break
+			end
+		end
+	end
+	if detected and not hostilePlayersPresent and (GetTime() - lastHostileAlert) >= 10 then
+		if PlaySound then PlaySound((SOUNDKIT and SOUNDKIT.RAID_WARNING) or 8959, "Master") end
+		lastHostileAlert = GetTime()
+	end
+	hostilePlayersPresent = detected
+end
 
 local function mergeDefaults(target, source)
 	for key, value in pairs(source) do
@@ -171,7 +218,11 @@ events:SetScript("OnEvent", function(_, event, unit)
 		ns.InitializeInterface()
 		ns.RefreshSecureActions()
 		ns.Render()
-		if not ticker then ticker = C_Timer.NewTicker(1, ns.Render) end
+		if not ticker then ticker = C_Timer.NewTicker(1, function()
+			ns.Render()
+			ns.CheckHostilePlayers()
+			if ns.RefreshShoppingPlanner then ns.RefreshShoppingPlanner() end
+		end) end
 	elseif event == "PLAYER_REGEN_ENABLED" then
 		if updatePending then ns.RefreshSecureActions() end
 		ns.Render()
