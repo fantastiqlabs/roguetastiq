@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.6 — 2026-11-14
+
+- Replaced the macro input skin with a bordered multiline preview so complete templates are visible.
+- Added short explanations for the template selector, laugh toggle, racial and food fields, and copy action.
+
 ## 0.0.5 — 2026-11-14
 
 - Added selectable opposing-player alert sounds and Cheer, Laugh, and Roar emotes, with a preview button.

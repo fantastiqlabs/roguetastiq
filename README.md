@@ -30,9 +30,9 @@ Roguetastiq keeps the two essentials visible and the rest out of the way. Its Ma
 
 The poison picker is restricted to poisons Rogues can currently learn from a poison trainer in WoW: Forever. Entries found only in unused client data stay out of the picker.
 
-## Release 0.0.5
+## Release 0.0.6
 
-This development preview adds a selector for opposing-player alert sounds and Cheer, Laugh, and Roar emotes. It organizes options into QOL, Macros, Addon Settings, and PvP tabs; improves the macro preview and contact layout; separates poison and stone status into columns; and keeps text readable at the available bar sizes. Addon Settings can optionally hide the coating bar in cities and inns. Fadeleaf and Flash Powder reminders remain planned. Item application, recipe totals, macro ordering, alert detection and sounds, resting-area detection, and saved placement still need a live-client check.
+This development preview gives the macro page a multiline preview and explains how each macro control works. It also adds a selector for opposing-player alert sounds and Cheer, Laugh, and Roar emotes. Options are organized into QOL, Macros, Addon Settings, and PvP tabs; the contact layout and hand-bar text are improved, and Addon Settings can optionally hide the coating bar in cities and inns. Fadeleaf and Flash Powder reminders remain planned. Item application, recipe totals, macro ordering, alert detection and sounds, resting-area detection, and saved placement still need a live-client check.
 
 **The click-to-apply actions have not yet been verified in the live Forever client.** Please test them in game and report the client build and any Lua error before relying on them.
 
@@ -40,7 +40,7 @@ Every version gets a tagged release and downloadable ZIP from the start. Rogueta
 
 ## Install
 
-1. Open [Releases](https://github.com/fantastiqlabs/roguetastiq/releases) and download **`Roguetastiq_0.0.5.zip`** from the release Assets. Do not download GitHub's separate **Source code** archive.
+1. Open [Releases](https://github.com/fantastiqlabs/roguetastiq/releases) and download **`Roguetastiq_0.0.6.zip`** from the release Assets. Do not download GitHub's separate **Source code** archive.
 2. Extract the ZIP into the Forever client’s `Interface/AddOns/` directory.
 3. Confirm these files sit directly in the `Roguetastiq` folder (with no extra folder level):
 

@@ -224,13 +224,16 @@ end
 
 local function createMacroSection()
 	font(optionsPanel, "ROGUE MACROS", "GameFontNormal", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -10)
-	font(optionsPanel, "Select a template, then select its text and copy it into WoW's macro editor.",
+	font(optionsPanel, "Choose a template, adjust optional fields, then copy the preview into WoW's Macro UI.",
 		"GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -34)
+	font(optionsPanel, "Macro template", "GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -54)
+	font(optionsPanel, "Laugh option for Cheap Shot and Blind", "GameFontHighlightSmall",
+		"TOPLEFT", optionsPanel, "TOPLEFT", 305, -54)
 	local macroChoices = {}
 	for _, option in ipairs(macroOptions) do
 		macroChoices[#macroChoices + 1] = { key = option.key, label = option.label, buttonLabel = option.label }
 	end
-	macroDropdown = makeDropdown(optionsPanel, 270, 27, "TOPLEFT", optionsPanel, "TOPLEFT", 20, -62,
+	macroDropdown = makeDropdown(optionsPanel, 270, 27, "TOPLEFT", optionsPanel, "TOPLEFT", 20, -72,
 		macroChoices,
 		function()
 			for _, option in ipairs(macroChoices) do
@@ -239,9 +242,9 @@ local function createMacroSection()
 			return macroChoices[1]
 		end,
 		function(option) RoguetastiqDB.macroTemplate = option.key; updateMacroPreview() end)
-	local laughToggle = createButton(optionsPanel, "", 220, 27, "TOPLEFT", optionsPanel, "TOPLEFT", 305, -62)
+	local laughToggle = createButton(optionsPanel, "", 230, 27, "TOPLEFT", optionsPanel, "TOPLEFT", 305, -72)
 	local function syncLaughToggle()
-		laughToggle:SetText("Add /laugh to Cheap Shot/Blind: " .. (RoguetastiqDB.laughInMacros and "ON" or "OFF"))
+		laughToggle:SetText("Add /laugh: " .. (RoguetastiqDB.laughInMacros and "ON" or "OFF"))
 	end
 	laughToggle:SetScript("OnClick", function()
 		RoguetastiqDB.laughInMacros = not RoguetastiqDB.laughInMacros
@@ -249,39 +252,47 @@ local function createMacroSection()
 		updateMacroPreview()
 	end)
 	syncLaughToggle()
-	makeDropdown(optionsPanel, 250, 27, "TOPLEFT", optionsPanel, "TOPLEFT", 20, -112,
+	font(optionsPanel, "Used by the Burst template", "GameFontHighlightSmall",
+		"TOPLEFT", optionsPanel, "TOPLEFT", 20, -106)
+	font(optionsPanel, "Item name inserted into Stealth -> eat", "GameFontHighlightSmall",
+		"TOPLEFT", optionsPanel, "TOPLEFT", 300, -106)
+	makeDropdown(optionsPanel, 250, 27, "TOPLEFT", optionsPanel, "TOPLEFT", 20, -124,
 		racialOptions,
 		function()
 			for _, option in ipairs(racialOptions) do if option.key == (RoguetastiqDB.macroRacial or "none") then return option end end
 			return racialOptions[1]
 		end,
 		function(option) RoguetastiqDB.macroRacial = option.key; updateMacroPreview() end)
-	font(optionsPanel, "Burst racial", "GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -90)
 	local foodName = CreateFrame("EditBox", nil, optionsPanel, "InputBoxTemplate")
 	foodName:SetAutoFocus(false)
 	foodName:SetSize(250, 25)
-	foodName:SetPoint("TOPLEFT", optionsPanel, "TOPLEFT", 300, -112)
+	foodName:SetPoint("TOPLEFT", optionsPanel, "TOPLEFT", 300, -124)
 	foodName:SetText(RoguetastiqDB.macroFoodName or "Food Name")
 	foodName:SetScript("OnEnterPressed", function(self)
 		RoguetastiqDB.macroFoodName = self:GetText()
 		self:ClearFocus()
 		updateMacroPreview()
 	end)
-	font(optionsPanel, "Food item for Stealth -> eat (press Enter to save)", "GameFontHighlightSmall",
-		"TOPLEFT", optionsPanel, "TOPLEFT", 300, -90)
-	macroPreview = CreateFrame("EditBox", nil, optionsPanel, "InputBoxTemplate")
+	font(optionsPanel, "MULTILINE PREVIEW", "GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -158)
+	local previewFrame = CreateFrame("Frame", nil, optionsPanel, "BackdropTemplate")
+	previewFrame:SetSize(640, 230)
+	previewFrame:SetPoint("TOPLEFT", optionsPanel, "TOPLEFT", 20, -180)
+	setBackdrop(previewFrame, 0.99)
+	macroPreview = CreateFrame("EditBox", nil, previewFrame)
 	macroPreview:SetMultiLine(true)
 	macroPreview:SetAutoFocus(false)
-	macroPreview:SetSize(640, 250)
-	macroPreview:SetPoint("TOPLEFT", optionsPanel, "TOPLEFT", 20, -150)
+	macroPreview:SetSize(620, 210)
+	macroPreview:SetPoint("TOPLEFT", previewFrame, "TOPLEFT", 10, -10)
 	macroPreview:SetFontObject(GameFontHighlightSmall)
-	macroPreview:SetTextInsets(8, 8, 8, 8)
+	macroPreview:SetTextInsets(4, 4, 4, 4)
 	macroPreview:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
 	macroPreview:SetScript("OnEditFocusLost", function(self) self:HighlightText(0, 0) end)
-	local selectText = createButton(optionsPanel, "Select macro text", 150, 25, "TOPLEFT", optionsPanel, "TOPLEFT", 20, -420)
+	local selectText = createButton(optionsPanel, "Select macro text", 150, 25, "TOPLEFT", optionsPanel, "TOPLEFT", 20, -425)
 	selectText:SetScript("OnClick", function() macroPreview:SetFocus(); macroPreview:HighlightText() end)
-	font(optionsPanel, "Macros are previews for you to copy; the addon does not create or run them.",
-		"GameFontHighlightSmall", "LEFT", selectText, "RIGHT", 12, 0)
+	local copyHelp = font(optionsPanel, "Click the button, press Ctrl+C, then paste into WoW's Macro UI. Roguetastiq never runs this text.",
+		"GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -462)
+	copyHelp:SetWidth(640)
+	copyHelp:SetWordWrap(true)
 	updateMacroPreview()
 end
 
