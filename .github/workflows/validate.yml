@@ -18,18 +18,21 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes lua5.4
       - name: Check Lua syntax
-        run: luac5.4 -p RoguetastiqCatalog.lua RoguetastiqShopping.lua RoguetastiqLocations.lua Roguetastiq.lua RoguetastiqMaps.lua RoguetastiqOptions.lua
+        run: luac5.4 -p RoguetastiqCatalog.lua RoguetastiqShopping.lua RoguetastiqMacro.lua RoguetastiqLocations.lua Roguetastiq.lua RoguetastiqMaps.lua RoguetastiqOptions.lua
       - name: Test purchase planning
         run: lua5.4 tests/shopping-plan.lua
       - name: Test vendor popup and auto-buy guard
         run: lua5.4 tests/vendor-session.lua
       - name: Test Forever NPC map catalog and projection
         run: lua5.4 tests/map-markers.lua .
+      - name: Test macro food references
+        run: lua5.4 tests/macro-food.lua .
       - name: Build addon archive
         run: python3 scripts/package.py
       - name: Verify packaged shopping module
         run: |
           unzip -l dist/Roguetastiq_0.0.8.zip | grep -F 'Roguetastiq/RoguetastiqShopping.lua'
+          unzip -l dist/Roguetastiq_0.0.8.zip | grep -F 'Roguetastiq/RoguetastiqMacro.lua'
           unzip -l dist/Roguetastiq_0.0.8.zip | grep -F 'Roguetastiq/RoguetastiqLocations.lua'
           unzip -l dist/Roguetastiq_0.0.8.zip | grep -F 'Roguetastiq/RoguetastiqMaps.lua'
           unzip -l dist/Roguetastiq_0.0.8.zip | grep -F 'Roguetastiq/RoguetastiqMapPins.xml'

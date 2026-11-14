@@ -23,7 +23,7 @@ local macroOptions = {
 	{ key = "stealth", label = "Stealth - spam safe", text = "#showtooltip Stealth\n/dismount [mounted]\n/cast [nostealth] Stealth" },
 	{ key = "opener", label = "Stealth -> opener", text = "#showtooltip\n/cast [nostealth] Stealth; [mod:shift] Garrote; [mod:ctrl] Ambush; Cheap Shot" },
 	{ key = "vanish", label = "Stealth / Vanish", text = "#showtooltip\n/stopattack [combat]\n/cast [nocombat] !Stealth; Vanish" },
-	{ key = "stealthfood", label = "Stealth, then eat", text = "#showtooltip\n/cast [nostealth] !Stealth\n/use [stealth] FOOD_ITEM" },
+	{ key = "stealthfood", label = "Stealth, then eat", text = "#showtooltip\n/cast [nostealth] !Stealth\nFOOD_USE_LINE" },
 	{ key = "pickpocket", label = "Pick Pocket -> Ambush", text = "#showtooltip Ambush\n/cast [stealth] Pick Pocket\n/cast Ambush" },
 	{ key = "pickpocketshot", label = "Pick Pocket -> Cheap Shot", text = "#showtooltip Cheap Shot\n/cast [stealth] Pick Pocket\n/cast Cheap Shot" },
 	{ key = "cheapshot", label = "Cheap Shot from Stealth", text = "#showtooltip Cheap Shot\n/cast [nostealth] Stealth; Cheap Shot" },
@@ -159,7 +159,10 @@ local function updateMacroPreview()
 	for _, option in ipairs(macroOptions) do if option.key == key then macro = option; break end end
 	macro = macro or macroOptions[1]
 	local content = macro.text
-	content = content:gsub("FOOD_ITEM", RoguetastiqDB.macroFoodName or "Food Name")
+	content = content:gsub("FOOD_USE_LINE", function()
+		return ns.FoodMacroUseLine(
+			RoguetastiqDB.macroFoodSource, RoguetastiqDB.macroFoodActionButton, RoguetastiqDB.macroFoodName)
+	end)
 	if key == "burst" then
 		local racial = RoguetastiqDB.macroRacial or "none"
 		content = content:gsub("/cast %%RACIAL%%\n", racial == "none" and "" or ("/cast " .. racial .. "\n"))
@@ -263,8 +266,10 @@ local function createMacroSection()
 	syncLaughToggle()
 	font(optionsPanel, "Used by the Burst template", "GameFontHighlightSmall",
 		"TOPLEFT", optionsPanel, "TOPLEFT", 20, -106)
-	font(optionsPanel, "Item name inserted into Stealth -> eat", "GameFontHighlightSmall",
+	font(optionsPanel, "Manual food item name", "GameFontHighlightSmall",
 		"TOPLEFT", optionsPanel, "TOPLEFT", 300, -106)
+	font(optionsPanel, "Or choose bar button", "GameFontHighlightSmall",
+		"TOPLEFT", optionsPanel, "TOPLEFT", 550, -106)
 	makeDropdown(optionsPanel, 250, 27, "TOPLEFT", optionsPanel, "TOPLEFT", 20, -124,
 		racialOptions,
 		function()
@@ -282,6 +287,35 @@ local function createMacroSection()
 		self:ClearFocus()
 		updateMacroPreview()
 	end)
+	local foodSources = { { key = "item", label = "Item name" } }
+	for slot = 1, 12 do
+		foodSources[#foodSources + 1] = { key = "actionbar", slot = slot, label = "Button " .. slot }
+	end
+	local foodSourceDropdown = makeDropdown(optionsPanel, 125, 25, "TOPLEFT", optionsPanel, "TOPLEFT", 540, -124,
+		foodSources,
+		function()
+			if RoguetastiqDB.macroFoodSource == "actionbar" then
+				for _, option in ipairs(foodSources) do
+					if option.slot == (RoguetastiqDB.macroFoodActionButton or 1) then return option end
+				end
+			end
+			return foodSources[1]
+		end,
+		function(option)
+			RoguetastiqDB.macroFoodSource = option.key
+			RoguetastiqDB.macroFoodActionButton = option.slot or RoguetastiqDB.macroFoodActionButton or 1
+			foodName:SetEnabled(option.key == "item")
+			updateMacroPreview()
+		end)
+	foodSourceDropdown:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+		GameTooltip:AddLine("Stealth and eat food source", 1, 1, 1)
+		GameTooltip:AddLine("Choose an exact item name, or place your preferred food directly on the selected action button. The addon cannot dynamically choose food quality or move food between slots.", 1, 1, 1, true)
+		GameTooltip:AddLine("Test /click behavior on the current Forever build before relying on it.", 1, 0.8, 0.3, true)
+		GameTooltip:Show()
+	end)
+	foodSourceDropdown:SetScript("OnLeave", GameTooltip_Hide)
+	foodName:SetEnabled(RoguetastiqDB.macroFoodSource ~= "actionbar")
 	font(optionsPanel, "MULTILINE PREVIEW", "GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -158)
 	local previewFrame = CreateFrame("Frame", nil, optionsPanel, "BackdropTemplate")
 	previewFrame:SetSize(590, 230)

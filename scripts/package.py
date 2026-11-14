@@ -15,6 +15,7 @@ files = [
     TOC,
     ROOT / "RoguetastiqCatalog.lua",
     ROOT / "RoguetastiqShopping.lua",
+    ROOT / "RoguetastiqMacro.lua",
     ROOT / "RoguetastiqLocations.lua",
     ROOT / "Roguetastiq.lua",
     ROOT / "RoguetastiqMaps.lua",
