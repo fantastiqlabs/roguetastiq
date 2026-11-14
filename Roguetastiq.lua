@@ -12,6 +12,10 @@ local defaults = {
 	shoppingCount = 20,
 	autoBuyMaterials = false,
 	vendorPopupEnabled = true,
+	fadeleafReminder = true,
+	fadeleafThreshold = 5,
+	flashPowderWarning = true,
+	flashPowderThreshold = 10,
 	mapMarkersEnabled = true,
 	minimapMarkersEnabled = true,
 	mapShowShadyDealer = true,
@@ -248,7 +252,7 @@ end
 local events = CreateFrame("Frame")
 for _, event in ipairs({ "PLAYER_LOGIN", "PLAYER_ENTERING_WORLD", "PLAYER_EQUIPMENT_CHANGED",
 	"UNIT_AURA", "UNIT_INVENTORY_CHANGED", "BAG_UPDATE_DELAYED", "PLAYER_REGEN_ENABLED",
-	"MERCHANT_SHOW", "MERCHANT_UPDATE", "MERCHANT_CLOSED", "ZONE_CHANGED_NEW_AREA",
+	"MERCHANT_SHOW", "MERCHANT_UPDATE", "MERCHANT_CLOSED", "AUCTION_HOUSE_SHOW", "ZONE_CHANGED_NEW_AREA",
 	"MINIMAP_UPDATE_ZOOM" }) do
 	events:RegisterEvent(event)
 end
@@ -261,6 +265,7 @@ events:SetScript("OnEvent", function(_, event, unit)
 		ns.InitializeMaps()
 		ns.RefreshSecureActions()
 		ns.Render()
+		ns.CheckFlashPowderReminder()
 		if not ticker then ticker = C_Timer.NewTicker(1, function()
 			ns.Render()
 			ns.CheckHostilePlayers()
@@ -278,11 +283,19 @@ events:SetScript("OnEvent", function(_, event, unit)
 		if unit == "player" then ns.Render() end
 	elseif event == "MERCHANT_SHOW" then
 		ns.OnMerchantShow()
+		ns.CheckFadeleafReminder("vendor")
 		if RoguetastiqDB.autoBuyMaterials then ns.AutoBuyVendorMaterials() end
 	elseif event == "MERCHANT_CLOSED" then
 		ns.CloseVendorShopping()
+	elseif event == "AUCTION_HOUSE_SHOW" then
+		ns.CheckFadeleafReminder("auction")
 	else
-		if event == "BAG_UPDATE_DELAYED" or event == "MERCHANT_UPDATE" then ns.RefreshVendorShopping() end
+		if event == "BAG_UPDATE_DELAYED" then
+			ns.RefreshVendorShopping()
+			ns.CheckFlashPowderReminder()
+		elseif event == "MERCHANT_UPDATE" then
+			ns.RefreshVendorShopping()
+		end
 		if event == "ZONE_CHANGED_NEW_AREA" or event == "MINIMAP_UPDATE_ZOOM" then ns.RefreshMapMarkers() end
 		ns.RefreshSecureActions()
 		ns.Render()

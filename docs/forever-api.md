@@ -44,6 +44,22 @@ Recipe quantities and material item IDs are based on the current Forever client 
 
 ## Known verification gaps
 
+### Rogue supply reminders
+
+The reminder catalog uses Fadeleaf (item ID 3818) and Flash Powder (item ID
+5140). It counts these items through the same bag-container API as the poison
+planner. The Supplies options let the player enable each reminder and set its
+threshold. Fadeleaf is checked when the merchant or Auction House opens; Flash
+Powder warns once when bag count reaches the configured threshold and rearms
+after the count rises above it.
+
+The current Forever addon API material and the addon do not provide a reliable
+last-paid price history for Fadeleaf. Vendor prices and Auction House listing
+prices are asking prices, not evidence of what the player last paid. The addon
+therefore shows no last-paid price until a trustworthy transaction-history
+source can be verified. Confirm that `AUCTION_HOUSE_SHOW` fires as expected and
+that the item IDs match the current client build during the live-client check.
+
 - Exact live interface number and Forever patch/build.
 - In-game handling of multiple simultaneous coatings per hand and secret/opaque values.
 - Verify every catalog recipe, item ID, and reagent count against a live character and current client build.
