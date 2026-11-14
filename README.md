@@ -16,7 +16,7 @@
 
 Roguetastiq keeps the two essentials visible and the rest out of the way. Its Main Hand and Off Hand indicators show poison and stone time/charges, then appear when a configured warning threshold is reached.
 
-## What it will do
+## Features
 
 - Track poison and sharpening-stone status independently on both weapons.
 - Let you set time and charge warnings.
@@ -28,30 +28,34 @@ Roguetastiq keeps the two essentials visible and the rest out of the way. Its Ma
 
 The poison picker is restricted to poisons Rogues can currently learn from a poison trainer in WoW: Forever. Entries found only in unused client data stay out of the picker.
 
-## Release 0.0.1
+## Release 0.0.2
 
-The first public development preview includes the two hand indicators, configurable time and charge thresholds, and Forever API research. Modifier-based item application, the verified poison catalog, ingredient calculator, supply reminders, and macro builder are still in development. This release has not yet been loaded in the live game client.
+This development preview adds a compact combined Main Hand/Off Hand bar, separate poison and stone icons, independent poison/stone visibility alerts, an Interface → AddOns settings page, a minimap button, and configurable normal/Shift/Ctrl/Alt coating actions for each hand. The coating timers show minutes above one minute and seconds below it. Poison actions choose the highest rank of the selected family in your bags.
+
+**The click-to-apply actions have not yet been verified in the live Forever client.** Please test them in game and report the client build and any Lua error before relying on them.
 
 Every version gets a tagged release and downloadable ZIP from the start. Roguetastiq follows SemVer beginning at `0.0.1`; releases stay marked as pre-releases until the in-game smoke check is recorded. See [the changelog](CHANGELOG.md).
 
 ## Install
 
-1. Open [Releases](https://github.com/fantastiqlabs/roguetastiq/releases) and download **`Roguetastiq_0.0.1.zip`** from the release Assets. Do not download GitHub's separate **Source code** archive.
+1. Open [Releases](https://github.com/fantastiqlabs/roguetastiq/releases) and download **`Roguetastiq_0.0.2.zip`** from the release Assets. Do not download GitHub's separate **Source code** archive.
 2. Extract the ZIP into the Forever client’s `Interface/AddOns/` directory.
 3. Confirm these two files sit directly in the `Roguetastiq` folder (with no extra folder level):
 
    ```text
    <Forever client folder>/Interface/AddOns/Roguetastiq/Roguetastiq.toc
+   <Forever client folder>/Interface/AddOns/Roguetastiq/RoguetastiqCatalog.lua
    <Forever client folder>/Interface/AddOns/Roguetastiq/Roguetastiq.lua
+   <Forever client folder>/Interface/AddOns/Roguetastiq/RoguetastiqOptions.lua
    ```
 
 4. Restart the Forever client and enable **Roguetastiq** on the character selection screen if needed.
 
 Check the client interface number in game with `/dump select(4, GetBuildInfo())`. The current TOC targets `16001`; update that value if the live client has moved on.
 
-## Configure the preview
+## Configure
 
-Use `/rt time 300` to set the low-time threshold in seconds, `/rt charges 10` for the low-charge threshold, and `/rt poison on|off` or `/rt stone on|off` to enable each warning. Drag the indicators to move them.
+Open **Interface → AddOns → Roguetastiq** or left-click the minimap button to configure warnings and each hand's click actions. Right-click the minimap button to force the bar on or return it to automatic visibility. Use `/rt` to open settings.
 
 ## Build from source
 

@@ -11,7 +11,12 @@ version = next(
     for line in TOC.read_text().splitlines()
     if line.startswith("## Version:")
 )
-files = [TOC, ROOT / "Roguetastiq.lua"]
+files = [
+    TOC,
+    ROOT / "RoguetastiqCatalog.lua",
+    ROOT / "Roguetastiq.lua",
+    ROOT / "RoguetastiqOptions.lua",
+]
 output = ROOT / "dist" / f"Roguetastiq_{version}.zip"
 output.parent.mkdir(exist_ok=True)
 

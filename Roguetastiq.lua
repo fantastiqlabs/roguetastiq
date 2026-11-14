@@ -1,15 +1,45 @@
-local addonName, ns = ...
+local _, ns = ...
 
 local defaults = {
 	timeThreshold = 300,
 	chargeThreshold = 10,
-	poisonEnabled = true,
-	stoneEnabled = true,
+	poisonWarnings = true,
+	stoneWarnings = true,
+	forceVisible = false,
+	minimapAngle = 220,
+	barX = 0,
+	barY = -140,
+	bindings = {
+		mainhand = {
+			left = { kind = "poison", key = "instant" },
+			shift = { kind = "poison", key = "deadly" },
+			ctrl = { kind = "poison", key = "wound" },
+			alt = { kind = "stone", key = "dense" },
+		},
+		offhand = {
+			left = { kind = "poison", key = "instant" },
+			shift = { kind = "poison", key = "deadly" },
+			ctrl = { kind = "poison", key = "wound" },
+			alt = { kind = "stone", key = "dense" },
+		},
+	},
 }
 
-local function copyDefaults(target, source)
+local hands = {
+	{ key = "mainhand", label = "Main Hand", slot = Enum.WeaponSlot.MainHand, inventorySlot = 16 },
+	{ key = "offhand", label = "Off Hand", slot = Enum.WeaponSlot.OffHand, inventorySlot = 17 },
+}
+
+local modifierNames = { "left", "shift", "ctrl", "alt" }
+local updatePending = false
+local ticker
+
+local function mergeDefaults(target, source)
 	for key, value in pairs(source) do
-		if target[key] == nil then
+		if type(value) == "table" then
+			if type(target[key]) ~= "table" then target[key] = {} end
+			mergeDefaults(target[key], value)
+		elseif target[key] == nil then
 			target[key] = value
 		end
 	end
@@ -17,21 +47,19 @@ end
 
 local function coatingState(slot)
 	local results = { poison = nil, stone = nil }
-	local enchants = C_Item.GetWeaponEnchantInfo(slot)
-	for _, enchant in ipairs(enchants or {}) do
+	for _, enchant in ipairs(C_Item.GetWeaponEnchantInfo(slot) or {}) do
 		if enchant.hasEnchant then
-			local key
+			local kind
 			if enchant.enchantType == Enum.ItemEnchantType.Imbue then
-				key = "poison"
+				kind = "poison"
 			elseif enchant.enchantType == Enum.ItemEnchantType.Temporary then
-				key = "stone"
+				kind = "stone"
 			end
-			if key then
-				results[key] = {
+			if kind then
+				results[kind] = {
 					seconds = (enchant.timeLeft or 0) / 1000,
 					charges = enchant.charges or 0,
 					icon = enchant.enchantIconID,
-					id = enchant.enchantID,
 				}
 			end
 		end
@@ -39,100 +67,123 @@ local function coatingState(slot)
 	return results
 end
 
-local function needsRefresh(state, enabled)
-	if not enabled then
-		return false
-	end
+local function isLow(state)
 	return not state or state.seconds <= RoguetastiqDB.timeThreshold
 		or (state.charges > 0 and state.charges <= RoguetastiqDB.chargeThreshold)
 end
 
-local function formatState(label, state)
-	if not state then
-		return label .. ": missing"
-	end
-	return string.format("%s: %ds · %d", label, math.ceil(state.seconds), state.charges)
+local function timeText(state)
+	if not state then return "Missing" end
+	local seconds = math.max(0, math.ceil(state.seconds))
+	local remaining = seconds < 60 and string.format("%ds", seconds)
+		or string.format("%dm", math.floor(seconds / 60))
+	return string.format("%s · %d", remaining, state.charges)
 end
 
-local hands = {
-	{ name = "Main Hand", slot = Enum.WeaponSlot.MainHand },
-	{ name = "Off Hand", slot = Enum.WeaponSlot.OffHand },
-}
-
-local buttons = {}
-local function render()
+function ns.Render()
+	if not RoguetastiqDB or not ns.HandButtons then return end
+	local show = RoguetastiqDB.forceVisible
 	for index, hand in ipairs(hands) do
+		local button = ns.HandButtons[index]
 		local state = coatingState(hand.slot)
-		local alert = needsRefresh(state.poison, RoguetastiqDB.poisonEnabled)
-			or needsRefresh(state.stone, RoguetastiqDB.stoneEnabled)
-		local button = buttons[index]
-		button.label:SetText(hand.name .. "\n" .. formatState("Poison", state.poison)
-			.. "\n" .. formatState("Stone", state.stone))
-		if alert then button:Show() else button:Hide() end
+		local poisonLow = RoguetastiqDB.poisonWarnings and isLow(state.poison)
+		local stoneLow = RoguetastiqDB.stoneWarnings and isLow(state.stone)
+		show = show or poisonLow or stoneLow
+		button.title:SetText(index == 1 and "MH" or "OH")
+		button.poisonStatus:SetText(timeText(state.poison))
+		button.stoneStatus:SetText(timeText(state.stone))
+		local poisonChoice = RoguetastiqDB.bindings[hand.key].left
+		local poisonIcon = state.poison and state.poison.icon
+			or ns.GetChoiceIcon(poisonChoice)
+		local stoneChoice = RoguetastiqDB.bindings[hand.key].alt
+		local stoneIcon = state.stone and state.stone.icon
+			or ns.GetChoiceIcon(stoneChoice)
+		button.poisonIcon:SetTexture(poisonIcon or 134400)
+		button.stoneIcon:SetTexture(stoneIcon or 134400)
+		button.poisonIcon:SetDesaturated(not state.poison)
+		button.stoneIcon:SetDesaturated(not state.stone)
+		button.poisonLabel:SetText("POISON")
+		button.stoneLabel:SetText("STONE")
 	end
+	if show then ns.Bar:Show() else ns.Bar:Hide() end
 end
 
-local function createButton(index, title)
-	local button = CreateFrame("Button", "RoguetastiqHand" .. index, UIParent, "BackdropTemplate")
-	button:SetSize(178, 64)
-	button:SetPoint("CENTER", UIParent, "CENTER", (index == 1 and -92 or 92), -130)
-	button:SetMovable(true)
-	button:EnableMouse(true)
-	button:RegisterForDrag("LeftButton")
-	button:SetScript("OnDragStart", button.StartMoving)
-	button:SetScript("OnDragStop", button.StopMovingOrSizing)
-	button:SetBackdrop({
-		bgFile = "Interface/Tooltips/UI-Tooltip-Background",
-		edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-		tile = true,
-		tileSize = 16,
-		edgeSize = 12,
-		insets = { left = 3, right = 3, top = 3, bottom = 3 },
-	})
-	button:SetBackdropColor(0.04, 0.05, 0.07, 0.92)
-	button.label = button:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	button.label:SetPoint("CENTER")
-	button.label:SetJustifyH("CENTER")
-	button.label:SetText(title)
-	buttons[index] = button
+local function actionMacro(hand, choice)
+	local itemID = ns.FindCoatingItem(choice.kind, choice.key)
+	if not itemID then return nil end
+	return string.format("/use item:%d\n/use %d", itemID, hand.inventorySlot)
 end
 
-local function slash(message)
-	local command, value = message:match("^(%S+)%s*(.-)$")
-	if command == "time" and tonumber(value) then
-		RoguetastiqDB.timeThreshold = math.max(0, tonumber(value))
-	elseif command == "charges" and tonumber(value) then
-		RoguetastiqDB.chargeThreshold = math.max(0, tonumber(value))
-	elseif command == "poison" and (value == "on" or value == "off") then
-		RoguetastiqDB.poisonEnabled = value == "on"
-	elseif command == "stone" and (value == "on" or value == "off") then
-		RoguetastiqDB.stoneEnabled = value == "on"
-	else
-		print("Roguetastiq: /rt time <seconds>, /rt charges <count>, /rt poison <on|off>, /rt stone <on|off>")
+function ns.RefreshSecureActions()
+	if not RoguetastiqDB or not ns.HandButtons then return end
+	if InCombatLockdown() then
+		updatePending = true
+		return
 	end
-	render()
+	for index, hand in ipairs(hands) do
+		local button = ns.HandButtons[index]
+		for _, modifier in ipairs(modifierNames) do
+			local choice = RoguetastiqDB.bindings[hand.key][modifier]
+			local prefix = modifier == "left" and "" or (modifier .. "-")
+			local macro = choice and actionMacro(hand, choice)
+			button:SetAttribute(prefix .. "type1", macro and "macro" or nil)
+			button:SetAttribute(prefix .. "macrotext1", macro)
+		end
+	end
+	updatePending = false
+end
+
+local function toggleBar()
+	RoguetastiqDB.forceVisible = not RoguetastiqDB.forceVisible
+	ns.Render()
 end
 
 SLASH_ROGUETASTIQ1 = "/roguetastiq"
 SLASH_ROGUETASTIQ2 = "/rt"
-SlashCmdList.ROGUETASTIQ = slash
+SlashCmdList.ROGUETASTIQ = function(command)
+	local subcommand, value = (command or ""):match("^(%S*)%s*(.-)$")
+	if subcommand == "show" then
+		RoguetastiqDB.forceVisible = true
+		ns.Render()
+	elseif subcommand == "hide" then
+		RoguetastiqDB.forceVisible = false
+		ns.Render()
+	elseif subcommand == "time" and tonumber(value) then
+		RoguetastiqDB.timeThreshold = math.max(0, tonumber(value))
+		ns.Render()
+	elseif subcommand == "charges" and tonumber(value) then
+		RoguetastiqDB.chargeThreshold = math.max(0, tonumber(value))
+		ns.Render()
+	else
+		ns.OpenSettings()
+	end
+end
 
 local events = CreateFrame("Frame")
-events:RegisterEvent("PLAYER_LOGIN")
-events:RegisterEvent("UNIT_INVENTORY_CHANGED")
-events:RegisterEvent("UNIT_AURA")
-events:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
+for _, event in ipairs({ "PLAYER_LOGIN", "PLAYER_ENTERING_WORLD", "PLAYER_EQUIPMENT_CHANGED",
+	"UNIT_AURA", "UNIT_INVENTORY_CHANGED", "BAG_UPDATE_DELAYED", "PLAYER_REGEN_ENABLED" }) do
+	events:RegisterEvent(event)
+end
 events:SetScript("OnEvent", function(_, event, unit)
 	if event == "PLAYER_LOGIN" then
 		RoguetastiqDB = RoguetastiqDB or {}
-		copyDefaults(RoguetastiqDB, defaults)
-		createButton(1, hands[1].name)
-		createButton(2, hands[2].name)
-	elseif unit == nil or unit == "player" then
-		render()
+		mergeDefaults(RoguetastiqDB, defaults)
+		ns.InitializeInterface()
+		ns.RefreshSecureActions()
+		ns.Render()
+		if not ticker then ticker = C_Timer.NewTicker(1, ns.Render) end
+	elseif event == "PLAYER_REGEN_ENABLED" then
+		if updatePending then ns.RefreshSecureActions() end
+		ns.Render()
+	elseif event == "UNIT_INVENTORY_CHANGED" then
+		if unit == "player" then
+			ns.RefreshSecureActions()
+			ns.Render()
+		end
+	elseif event == "UNIT_AURA" then
+		if unit == "player" then ns.Render() end
+	else
+		ns.RefreshSecureActions()
+		ns.Render()
 	end
-end)
-
-C_Timer.NewTicker(1, function()
-	if RoguetastiqDB and buttons[1] then render() end
 end)
