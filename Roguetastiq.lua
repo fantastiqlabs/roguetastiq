@@ -16,6 +16,7 @@ local defaults = {
 	macroFoodName = "Food Name",
 	playerAlertEnabled = false,
 	playerAlertContext = "world",
+	hideBarInCities = false,
 	minimapAngle = 220,
 	barX = 0,
 	barY = -140,
@@ -124,7 +125,7 @@ local function timeText(state)
 	local seconds = math.max(0, math.ceil(state.seconds))
 	local remaining = seconds < 60 and string.format("%ds", seconds)
 		or string.format("%dm", math.floor(seconds / 60))
-	return string.format("%s · %d", remaining, state.charges)
+	return string.format("%s / %d", remaining, state.charges)
 end
 
 function ns.Render()
@@ -152,7 +153,8 @@ function ns.Render()
 		button.poisonLabel:SetText("POISON")
 		button.stoneLabel:SetText("STONE")
 	end
-	if show then ns.Bar:Show() else ns.Bar:Hide() end
+	local hideInCity = RoguetastiqDB.hideBarInCities and IsResting and IsResting()
+	if show and not hideInCity then ns.Bar:Show() else ns.Bar:Hide() end
 end
 
 local function actionMacro(hand, choice)

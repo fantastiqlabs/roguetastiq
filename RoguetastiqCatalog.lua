@@ -102,7 +102,7 @@ end
 catalog.options = {}
 catalog.optionsByKey = {}
 for key, value in pairs(catalog.poisons) do
-	local option = { kind = "poison", key = key, label = value.label .. " · highest in bags", buttonLabel = value.label }
+	local option = { kind = "poison", key = key, label = value.label .. " - highest in bags", buttonLabel = value.label }
 	catalog.options[#catalog.options + 1] = option
 	catalog.optionsByKey["poison:" .. key] = option
 end
@@ -117,7 +117,7 @@ function ns.CoatingChoiceLabel(choice)
 	if not choice then return "Unconfigured" end
 	local group = catalog[choice.kind .. "s"]
 	local item = group and group[choice.key]
-	return item and (choice.kind == "poison" and (item.label .. " · highest in bags") or item.label) or "Unconfigured"
+	return item and (choice.kind == "poison" and (item.label .. " - highest in bags") or item.label) or "Unconfigured"
 end
 
 function ns.FindRecipe(key)
