@@ -7,6 +7,7 @@
 - Added a poison-vendor shopping popup with current vendor stock, bag counts, missing reagent quantities, and estimated cost for the selected recipe and batch size.
 - Added a deliberate **Buy required materials** action that buys only available missing reagents. Optional auto-buy on supported vendor open is configurable and off by default.
 - Added filterable world-map and minimap markers for Forever-seen Shady Dealers, poison reagent vendors, and Rogue trainers, with nearby world-map NPCs grouped into shared tooltips.
+- Added a Stealth/eat food source selector for an exact item name or one of the first 12 action buttons holding the player's preferred food.
 - Added purchase-plan and merchant-session tests for exact quantities, stock, money, bag capacity, popup configuration, and the opt-in repeat guard.
 
 ### Safety

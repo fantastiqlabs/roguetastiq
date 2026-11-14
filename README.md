@@ -26,6 +26,7 @@ Roguetastiq keeps the two essentials visible and the rest out of the way. Its Ma
 - Calculate materials for a selected poison recipe and batch size, subtracting what you already carry.
 - Preview missing reagents at supported poison vendors and buy those reagents with one deliberate click; optional vendor auto-buy is off by default.
 - Preview Rogue macros for Stealth, Sap, weapon swaps, Ambush/Backstab, auto-attack, and cooldowns. Optionally add `/laugh` to Cheap Shot and Blind.
+- Configure the Stealth/eat macro with an exact food item name or an action button holding your preferred food.
 - Get an optional sound when an opposing-faction player appears on a visible enemy nameplate, scoped to the contexts you choose.
 - Find in-game mail feedback instructions and a copyable repository link in the options screen.
 
@@ -49,6 +50,7 @@ Every version gets a tagged release and downloadable ZIP from the start. Rogueta
    <Forever client folder>/Interface/AddOns/Roguetastiq/Roguetastiq.toc
    <Forever client folder>/Interface/AddOns/Roguetastiq/RoguetastiqCatalog.lua
    <Forever client folder>/Interface/AddOns/Roguetastiq/RoguetastiqShopping.lua
+   <Forever client folder>/Interface/AddOns/Roguetastiq/RoguetastiqMacro.lua
    <Forever client folder>/Interface/AddOns/Roguetastiq/RoguetastiqLocations.lua
    <Forever client folder>/Interface/AddOns/Roguetastiq/Roguetastiq.lua
    <Forever client folder>/Interface/AddOns/Roguetastiq/RoguetastiqMaps.lua
@@ -71,6 +73,7 @@ python3 scripts/package.py
 lua5.4 tests/shopping-plan.lua
 lua5.4 tests/vendor-session.lua
 lua5.4 tests/map-markers.lua .
+lua5.4 tests/macro-food.lua .
 ```
 
 The script writes a versioned archive to `dist/`. The archive contains only the addon files, ready to copy into `Interface/AddOns/`.
