@@ -24,29 +24,31 @@ Roguetastiq keeps the two essentials visible and the rest out of the way. Its Ma
 - Map normal, Shift, Ctrl, and Alt clicks through dropdowns for each hand.
 - Prefer the highest rank you have in your bags within each selected poison family.
 - Calculate materials for a selected poison recipe and batch size, subtracting what you already carry.
+- Preview missing reagents at supported poison vendors and buy those reagents with one deliberate click; optional vendor auto-buy is off by default.
 - Preview Rogue macros for Stealth, Sap, weapon swaps, Ambush/Backstab, auto-attack, and cooldowns. Optionally add `/laugh` to Cheap Shot and Blind.
 - Get an optional sound when an opposing-faction player appears on a visible enemy nameplate, scoped to the contexts you choose.
 - Find in-game mail feedback instructions and a copyable repository link in the options screen.
 
 The poison picker is restricted to poisons Rogues can currently learn from a poison trainer in WoW: Forever. Entries found only in unused client data stay out of the picker.
 
-## Release 0.0.7
+## Upcoming 0.0.8 preview
 
-This development preview adds an explicit **Create this macro** action with account/character storage and overwrite confirmation. It also fixes racial selection feedback, narrows the multiline preview to fit the options panel, and saves the coating bar's dragged position for reloads. The 0.0.6 release added the multiline preview and explanations for its controls.
+The 0.0.8 preview adds a poison-vendor reagent popup with a one-click purchase action and optional auto-buy, off by default. It also retains the 0.0.7 macro-creation, racial-selection, and saved-bar-position changes. Vendor purchases require a manual check in the current Forever client before 0.0.8 is released.
 
-**The click-to-apply actions have not yet been verified in the live Forever client.** Please test them in game and report the client build and any Lua error before relying on them.
+**The coating actions and vendor purchase behavior have not yet been verified in the live Forever client.** Please test them in game and report the client build and any Lua error before relying on them.
 
 Every version gets a tagged release and downloadable ZIP from the start. Roguetastiq follows SemVer beginning at `0.0.1`; releases stay marked as pre-releases until the in-game smoke check is recorded. See [the changelog](CHANGELOG.md).
 
 ## Install
 
-1. Open [Releases](https://github.com/fantastiqlabs/roguetastiq/releases) and download **`Roguetastiq_0.0.7.zip`** from the release Assets. Do not download GitHub's separate **Source code** archive.
+1. Open [Releases](https://github.com/fantastiqlabs/roguetastiq/releases) and download **`Roguetastiq_0.0.7.zip`** from the release Assets until 0.0.8 completes its in-game check. Do not download GitHub's separate **Source code** archive.
 2. Extract the ZIP into the Forever client’s `Interface/AddOns/` directory.
 3. Confirm these files sit directly in the `Roguetastiq` folder (with no extra folder level):
 
    ```text
    <Forever client folder>/Interface/AddOns/Roguetastiq/Roguetastiq.toc
    <Forever client folder>/Interface/AddOns/Roguetastiq/RoguetastiqCatalog.lua
+   <Forever client folder>/Interface/AddOns/Roguetastiq/RoguetastiqShopping.lua
    <Forever client folder>/Interface/AddOns/Roguetastiq/Roguetastiq.lua
    <Forever client folder>/Interface/AddOns/Roguetastiq/RoguetastiqOptions.lua
    ```
@@ -63,6 +65,8 @@ Open **Interface → AddOns → Roguetastiq** or left-click the minimap button. 
 
 ```sh
 python3 scripts/package.py
+lua5.4 tests/shopping-plan.lua
+lua5.4 tests/vendor-session.lua
 ```
 
 The script writes a versioned archive to `dist/`. The archive contains only the addon files, ready to copy into `Interface/AddOns/`.

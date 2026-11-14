@@ -32,9 +32,13 @@ The family and trainer availability snapshot is from current Forever game-data o
 - [WoW Forever poisons recipes](https://thewowdb.com/wow-forever/professions/poisons/)
 - [WoW Forever blacksmithing recipes](https://www.wowhead.com/forever/guide/professions/blacksmithing)
 
-## Poison recipe shopping calculator
+## Poison recipe shopping and vendors
 
-The calculator uses a versioned catalog of trainer-taught recipes. Select a poison rank and target count, multiply the reagents per craft, subtract items already in the bags, and show the remaining shopping amounts. It is informational: opening a vendor never purchases anything. Vendor-specific sold-item annotations remain follow-up work.
+The calculator uses a versioned catalog of trainer-taught recipes. Select a poison rank and target count, multiply the reagents per craft, subtract items already in the bags, and show the remaining shopping amounts. At a supported vendor that sells a poison reagent, Roguetastiq can show the current recipe, vendor stock, missing quantities, and estimated copper cost. A deliberate button click requests only the available missing reagents; it does not craft poison. An optional setting requests the same purchase once when a supported vendor opens; it is off by default and guarded to one attempt per merchant session.
+
+The Forever merchant UI reads listings through `C_MerchantFrame.GetItemInfo(index)` and `GetMerchantItemID(index)`, and Blizzard's merchant item button calls `BuyMerchantItem(index, quantity)` from its click paths. The Forever generated API documentation does not declare the legacy `BuyMerchantItem` global or specify addon-call and repeat-call policy. Roguetastiq therefore wraps each requested call, caps purchases against the current vendor listing, money, and bag space, declines high-value batch requests that would skip Blizzard's confirmation flow, and reports observed inventory changes rather than claiming success from a function return. Auto-buy remains opt-in. Manual verification on the current Forever client is required to confirm that addon purchase calls are accepted and that partial-stock results match the displayed vendor state.
+
+Vendor recognition uses the presence of a purchasable poison reagent (Dust of Decay, Essence of Pain, Deathweed, Essence of Agony, or Dust of Deterioration), so a general vendor that sells only vials does not trigger the popup. Merchant items with extended currency costs are shown as unavailable to this feature.
 
 Recipe quantities and material item IDs are based on the current Forever client extraction published in [WoW Forever Guides](https://wowforeverguides.com/professions/poisons) (build 1.60.1.70862) and cross-checked against [TheWoWDB Forever poison table](https://thewowdb.com/wow-forever/professions/poisons/) (build 1.60.1.70124). These are community mirrors of client data, not Blizzard documentation. Keep the client build recorded with catalog changes and verify recipes in game before treating the calculator as authoritative.
 
@@ -44,5 +48,5 @@ Recipe quantities and material item IDs are based on the current Forever client 
 - In-game handling of multiple simultaneous coatings per hand and secret/opaque values.
 - Verify every catalog recipe, item ID, and reagent count against a live character and current client build.
 - Secure click behavior for modifier-based item application and item targeting to a chosen weapon.
-- Vendor API behavior, whether bulk purchases can be initiated by one deliberate click, and whether the client limits repeated protected calls.
+- Whether the current Forever client permits addon-originated `BuyMerchantItem` calls from deliberate and auto-buy paths, and how it handles rapid multi-reagent requests. The client-side popup and planner have automated checks; verify on a live vendor before relying on purchases.
 - Live UI sizing, drag persistence, threshold behavior, and reload persistence.
