@@ -1,4 +1,8 @@
 <p align="center">
+  <img src="https://raw.githubusercontent.com/fantastiqlabs/.github/main/profile/assets/fantastiq-labs-mark.svg" alt="Fantastiq Labs" width="520">
+</p>
+
+<p align="center">
   <img src="assets/fantastiq-mark.svg" alt="Fantastiq Labs" width="132" />
 </p>
 
