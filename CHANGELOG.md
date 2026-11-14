@@ -9,8 +9,10 @@
 - Added filterable world-map and minimap markers for Forever-seen Shady Dealers, poison reagent vendors, and Rogue trainers, with nearby world-map NPCs grouped into shared tooltips.
 - Added a Stealth/eat food source selector for an exact item name or one of the first 12 action buttons holding the player's preferred food.
 - Added configurable Fadeleaf reminders at vendors and the Auction House, plus a low Flash Powder warning with an adjustable threshold.
+- Added action-button selectors for dagger and main-hand weapon macro templates while retaining direct item-name inputs.
 - Added purchase-plan and merchant-session tests for exact quantities, stock, money, bag capacity, popup configuration, and the opt-in repeat guard.
 - Added supply-reminder tests for thresholds, disabled settings, and one-warning-per-low-stock period.
+- Added macro tests for item-name and action-button weapon macro generation.
 
 ### Safety
 

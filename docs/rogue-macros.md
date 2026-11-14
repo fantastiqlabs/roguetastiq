@@ -105,7 +105,7 @@ In the addon's macro options, choose an exact item name or select one of the fir
 /startattack [nostealth]
 ```
 
-Replace `Dagger Name` with an exact main-hand dagger name. Shift uses Backstab; a normal press uses Ambush.
+Choose an exact dagger name or a primary action button containing the dagger's item action in the addon's macro options. Shift uses Backstab; a normal press uses Ambush. An empty button does nothing; if its contents change, the generated macro uses the new action.
 
 ### Swap dagger for Stealth opener and normal weapon afterward
 
@@ -116,7 +116,9 @@ Replace `Dagger Name` with an exact main-hand dagger name. Shift uses Backstab; 
 /startattack [nostealth]
 ```
 
-Replace both weapon placeholders. This swaps the main-hand weapon based on Stealth state; verify weapon swapping and timing in combat before depending on it.
+Choose an exact dagger and main-hand weapon name, or select action buttons for each. Item-name mode generates `/equipslot`; action-button mode generates conditional `/click ActionButtonN` lines. An empty button does nothing, and the selected button follows the active primary-bar page, so changing pages or bar contents changes what is clicked. Keep direct item names for a stable reference. Verify `/click`, item actions, page changes, and weapon swap behavior in the current Forever client before depending on action-button mode.
+
+See [action-bar macro references](research/action-bar-macro-references.md) for the compatibility limits and sources behind these options.
 
 ### Combat burst with trinkets and racial
 

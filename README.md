@@ -42,6 +42,11 @@ reminders include bag count; Flash Powder warnings can be disabled and have an
 adjustable threshold. The current Forever client does not expose reliable
 last-paid Fadeleaf history, so Roguetastiq does not guess or display that price.
 
+Weapon macro templates support either exact item names or selected primary-bar
+buttons. Button references follow the active bar page and its current contents;
+see [the macro compatibility notes](docs/research/action-bar-macro-references.md)
+and verify `/click` behavior in the current Forever client before relying on it.
+
 **The coating actions and vendor purchase behavior have not yet been verified in the live Forever client.** Please test them in game and report the client build and any Lua error before relying on them.
 
 Every version gets a tagged release and downloadable ZIP from the start. Roguetastiq follows SemVer beginning at `0.0.1`; releases stay marked as pre-releases until the in-game smoke check is recorded. See [the changelog](CHANGELOG.md).
