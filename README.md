@@ -33,7 +33,7 @@ The poison picker is restricted to poisons Rogues can currently learn from a poi
 
 ## Upcoming 0.0.8 preview
 
-The 0.0.8 preview adds a poison-vendor reagent popup with a one-click purchase action and optional auto-buy, off by default. It also retains the 0.0.7 macro-creation, racial-selection, and saved-bar-position changes. Vendor purchases require a manual check in the current Forever client before 0.0.8 is released.
+The 0.0.8 preview adds a poison-vendor reagent popup with a one-click purchase action and optional auto-buy, off by default, plus filterable world-map and minimap markers for the currently catalogued Forever-seen dealers, poison suppliers, and Rogue trainers. It also retains the 0.0.7 macro-creation, racial-selection, and saved-bar-position changes. Vendor purchases and marker placement require a manual check in the current Forever client before 0.0.8 is released.
 
 **The coating actions and vendor purchase behavior have not yet been verified in the live Forever client.** Please test them in game and report the client build and any Lua error before relying on them.
 
@@ -41,7 +41,7 @@ Every version gets a tagged release and downloadable ZIP from the start. Rogueta
 
 ## Install
 
-1. Open [Releases](https://github.com/fantastiqlabs/roguetastiq/releases) and download **`Roguetastiq_0.0.7.zip`** from the release Assets until 0.0.8 completes its in-game check. Do not download GitHub's separate **Source code** archive.
+1. Open [Releases](https://github.com/fantastiqlabs/roguetastiq/releases) and download the latest verified release. Do not download GitHub's separate **Source code** archive.
 2. Extract the ZIP into the Forever client’s `Interface/AddOns/` directory.
 3. Confirm these files sit directly in the `Roguetastiq` folder (with no extra folder level):
 
@@ -49,7 +49,10 @@ Every version gets a tagged release and downloadable ZIP from the start. Rogueta
    <Forever client folder>/Interface/AddOns/Roguetastiq/Roguetastiq.toc
    <Forever client folder>/Interface/AddOns/Roguetastiq/RoguetastiqCatalog.lua
    <Forever client folder>/Interface/AddOns/Roguetastiq/RoguetastiqShopping.lua
+   <Forever client folder>/Interface/AddOns/Roguetastiq/RoguetastiqLocations.lua
    <Forever client folder>/Interface/AddOns/Roguetastiq/Roguetastiq.lua
+   <Forever client folder>/Interface/AddOns/Roguetastiq/RoguetastiqMaps.lua
+   <Forever client folder>/Interface/AddOns/Roguetastiq/RoguetastiqMapPins.xml
    <Forever client folder>/Interface/AddOns/Roguetastiq/RoguetastiqOptions.lua
    ```
 
@@ -67,6 +70,7 @@ Open **Interface → AddOns → Roguetastiq** or left-click the minimap button. 
 python3 scripts/package.py
 lua5.4 tests/shopping-plan.lua
 lua5.4 tests/vendor-session.lua
+lua5.4 tests/map-markers.lua .
 ```
 
 The script writes a versioned archive to `dist/`. The archive contains only the addon files, ready to copy into `Interface/AddOns/`.
@@ -76,6 +80,7 @@ The script writes a versioned archive to `dist/`. The archive contains only the 
 - [Forever API and item research](docs/forever-api.md)
 - [Rogue macro library research](docs/rogue-macros.md)
 - [Product scope and interaction rules](docs/product-scope.md)
+- [Map and minimap marker research and verification checklist](docs/research/map-and-minimap-markers.md)
 - [Open issues](https://github.com/fantastiqlabs/roguetastiq/issues)
 
 Roguetastiq is a Fantastiq Labs project. Please report client errors with the game build, poison family/rank, hand, and the steps that triggered the issue.

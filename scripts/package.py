@@ -15,7 +15,10 @@ files = [
     TOC,
     ROOT / "RoguetastiqCatalog.lua",
     ROOT / "RoguetastiqShopping.lua",
+    ROOT / "RoguetastiqLocations.lua",
     ROOT / "Roguetastiq.lua",
+    ROOT / "RoguetastiqMaps.lua",
+    ROOT / "RoguetastiqMapPins.xml",
     ROOT / "RoguetastiqOptions.lua",
 ]
 output = ROOT / "dist" / f"Roguetastiq_{version}.zip"
