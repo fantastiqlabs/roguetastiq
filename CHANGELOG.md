@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.0.5 — 2026-11-14
+
+- Added selectable opposing-player alert sounds and Cheer, Laugh, and Roar emotes, with a preview button.
+- Removed the dropdown suffix that looked like a poison or stone rank.
+- Kept option labels ASCII-only so the Forever client font does not show replacement glyphs.
+- Emote choices perform the selected character emote; raid warning remains the default.
+
 ## 0.0.4 — 2026-11-14
 
 - Increased the macro preview area so longer templates are readable.

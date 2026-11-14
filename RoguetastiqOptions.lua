@@ -107,7 +107,7 @@ local function makeDropdown(parent, width, height, point, relative, relativePoin
 	end
 	local function updateLabel()
 		local selected = getSelected()
-		button:SetText((selected and (selected.buttonLabel or selected.label) or "Select") .. "  v")
+		button:SetText(selected and (selected.buttonLabel or selected.label) or "Select")
 	end
 	button:SetScript("OnClick", function()
 		if openDropdown and openDropdown ~= popup then openDropdown:Hide() end
@@ -306,10 +306,20 @@ local function createThreatAlertSection()
 			RoguetastiqDB.playerAlertContext = option.key
 			ns.CheckHostilePlayers()
 		end)
-	local testSound = createButton(optionsPanel, "Test alert sound", 145, 27, "TOPLEFT", optionsPanel, "TOPLEFT", 445, -68)
-	testSound:SetScript("OnClick", function()
-		if PlaySound then PlaySound((SOUNDKIT and SOUNDKIT.RAID_WARNING) or 8959, "Master") end
-	end)
+	font(optionsPanel, "Alert sound", "GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -112)
+	makeDropdown(optionsPanel, 250, 27, "TOPLEFT", optionsPanel, "TOPLEFT", 20, -120,
+		ns.AlertSounds,
+		function()
+			for _, option in ipairs(ns.AlertSounds) do
+				if option.key == RoguetastiqDB.playerAlertSound then return option end
+			end
+			return ns.AlertSounds[1]
+		end,
+		function(option)
+			RoguetastiqDB.playerAlertSound = option.key
+		end)
+	local testSound = createButton(optionsPanel, "Preview sound", 150, 27, "TOPLEFT", optionsPanel, "TOPLEFT", 285, -120)
+	testSound:SetScript("OnClick", ns.PlayAlertSound)
 	local function syncAlertToggle()
 		threatAlertToggle:SetText("Nearby-player sound: " .. (RoguetastiqDB.playerAlertEnabled and "ON" or "OFF"))
 	end
@@ -319,8 +329,10 @@ local function createThreatAlertSection()
 		ns.CheckHostilePlayers()
 	end)
 	syncAlertToggle()
-	font(optionsPanel, "Detection uses visible nameplates; turn on enemy player nameplates in WoW's interface settings.",
-		"GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -108)
+	local alertNote = font(optionsPanel, "Emote choices make your character perform that emote. Detection uses visible enemy nameplates.",
+		"GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -160)
+	alertNote:SetWidth(640)
+	alertNote:SetWordWrap(true)
 end
 
 local function createContactSection()

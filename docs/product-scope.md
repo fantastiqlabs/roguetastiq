@@ -11,7 +11,7 @@ Product title: **Roguetastiq - The giga rogue toolkit!**
 5. Configure every normal/Shift/Ctrl/Alt action for each hand with dropdown menus. Select trainer-taught poison families or sharpening stones; use the highest poison rank carried in bags.
 6. Provide a poison shopping planner: select a recipe and target craft count, then show recipe materials, bag counts, and the remaining amounts to buy. Opening a vendor never buys anything.
 7. Provide selectable, editable Rogue macro previews for stealth, Sap, Pick Pocket, start attack, cooldown/racial combinations, weapon swaps, and dagger Ambush/Backstab. Support configurable food and racial placeholders and optional `/laugh` in Cheap Shot and Blind. The player copies text into WoW's macro UI.
-8. Provide a toggleable sound alert for opposing-faction players, configurable for open world, battlegrounds/arenas, dungeons/raids, or everywhere. Detection is limited to visible enemy nameplates.
+8. Provide a toggleable opposing-faction alert, configurable for open world, battlegrounds/arenas, dungeons/raids, or everywhere. Let the player choose from common WoW sounds or Cheer, Laugh, and Roar emotes, preview the selection, and explain that emote choices perform the character emote. Detection is limited to visible enemy nameplates.
 9. Show in-game mail feedback contact details and a copyable GitHub repository link in the options screen.
 10. Fadeleaf reminders near vendors/Auction House, last-paid price hints when reliable transaction data is available, and a configurable low Flash Powder warning.
 

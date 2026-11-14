@@ -2,7 +2,7 @@
 ## Title: Roguetastiq - The giga rogue toolkit!
 ## Notes: Minimal rogue poison and sharpening-stone tracker
 ## Author: Fantastiq Labs
-## Version: 0.0.4
+## Version: 0.0.5
 ## SavedVariables: RoguetastiqDB
 
 RoguetastiqCatalog.lua

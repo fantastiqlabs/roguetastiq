@@ -14,6 +14,12 @@ The UI source distinguishes `Enum.ItemEnchantType.Imbue` from `Enum.ItemEnchantT
 
 Primary source: [Gethe/wow-ui-source, Forever BuffFrame.lua](https://github.com/Gethe/wow-ui-source/blob/forever/Interface/AddOns/Blizzard_BuffFrame/BuffFrame.lua). The `UpdateTemporaryEnchantmentBuffs` method iterates all weapon slots, reads `C_Item.GetWeaponEnchantInfo`, renders expiration time and charges, and cancels a slot enchant with `C_Spell.CancelItemTempEnchantment`.
 
+## Opposing-player alert sounds
+
+Forever's `SOUNDKIT` constants include the alert previews used by Roguetastiq: `RAID_WARNING` (8959), `ALARM_CLOCK_WARNING_1` (18871), `PVP_ENTER_QUEUE` (8458), `TELL_MESSAGE` (3081), `MAP_PING` (3175), and `READY_CHECK` (8960). The selector also offers the character emotes Cheer, Laugh, and Roar through `DoEmote`; choosing one makes the character perform that emote when an alert fires. Raid warning remains the default. The player should preview sounds in their own client because loudness and sound settings vary.
+
+Primary source: [Gethe/wow-ui-source, Forever SoundKitConstants.lua](https://github.com/Gethe/wow-ui-source/blob/forever/Interface/AddOns/Blizzard_SharedXML/Mainline/SoundKitConstants.lua). The sound names and IDs were read from the `forever` branch on 2026-11-14; recheck after client updates.
+
 ## Poison and stone catalog scope
 
 The selector will include only poisons currently learnable from a Rogue poison trainer on WoW: Forever. Being present in client files is not enough: client data can retain recipes that are not offered by Forever trainers. Current trainer and recipe observations cover the Instant, Deadly, Wound, Crippling, and Mind-numbing families; ranks are gated by skill and character level. Atrophic, Occult, Numbing, and Sebacious entries marked as not seen at a Forever trainer are excluded until their in-game availability is confirmed.

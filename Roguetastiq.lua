@@ -16,6 +16,7 @@ local defaults = {
 	macroFoodName = "Food Name",
 	playerAlertEnabled = false,
 	playerAlertContext = "world",
+	playerAlertSound = "raid_warning",
 	hideBarInCities = false,
 	minimapAngle = 220,
 	barX = 0,
@@ -46,6 +47,32 @@ local updatePending = false
 local ticker
 local hostilePlayersPresent = false
 local lastHostileAlert = 0
+local alertSounds = {
+	{ key = "raid_warning", label = "Raid warning", kind = "sound", soundKit = "RAID_WARNING", soundID = 8959 },
+	{ key = "alarm", label = "Alarm clock", kind = "sound", soundKit = "ALARM_CLOCK_WARNING_1", soundID = 18871 },
+	{ key = "pvp_queue", label = "PvP queue", kind = "sound", soundKit = "PVP_ENTER_QUEUE", soundID = 8458 },
+	{ key = "whisper", label = "Whisper received", kind = "sound", soundKit = "TELL_MESSAGE", soundID = 3081 },
+	{ key = "map_ping", label = "Map ping", kind = "sound", soundKit = "MAP_PING", soundID = 3175 },
+	{ key = "ready_check", label = "Ready check", kind = "sound", soundKit = "READY_CHECK", soundID = 8960 },
+	{ key = "emote_cheer", label = "Emote: Cheer", kind = "emote", emote = "CHEER" },
+	{ key = "emote_laugh", label = "Emote: Laugh", kind = "emote", emote = "LAUGH" },
+	{ key = "emote_roar", label = "Emote: Roar", kind = "emote", emote = "ROAR" },
+}
+ns.AlertSounds = alertSounds
+
+function ns.PlayAlertSound()
+	local selected
+	for _, option in ipairs(alertSounds) do
+		if option.key == RoguetastiqDB.playerAlertSound then selected = option; break end
+	end
+	selected = selected or alertSounds[1]
+	if selected.kind == "emote" then
+		if DoEmote then DoEmote(selected.emote) end
+	elseif PlaySound then
+		local soundID = SOUNDKIT and SOUNDKIT[selected.soundKit] or selected.soundID
+		PlaySound(soundID, "Master")
+	end
+end
 
 local function contextMatchesAlert()
 	local inInstance, instanceType = IsInInstance()
@@ -76,7 +103,7 @@ function ns.CheckHostilePlayers()
 		end
 	end
 	if detected and not hostilePlayersPresent and (GetTime() - lastHostileAlert) >= 10 then
-		if PlaySound then PlaySound((SOUNDKIT and SOUNDKIT.RAID_WARNING) or 8959, "Master") end
+		ns.PlayAlertSound()
 		lastHostileAlert = GetTime()
 	end
 	hostilePlayersPresent = detected
