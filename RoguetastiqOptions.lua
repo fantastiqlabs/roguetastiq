@@ -12,6 +12,9 @@ local shoppingCountLabel
 local updateShopping
 local macroPreview
 local macroDropdown
+local macroNameInput
+local macroBodyCount
+local macroNameManuallyEdited = false
 local threatAlertToggle
 local macroOptions = {
 	{ key = "kick", label = "Kick - focus or target", text = "#showtooltip Kick\n/cast [@focus,harm,nodead][] Kick" },
@@ -99,6 +102,7 @@ local function makeDropdown(parent, width, height, point, relative, relativePoin
 		entry:SetScript("OnLeave", function(self) self:SetBackdropColor(0, 0, 0, 0) end)
 		entry:SetScript("OnClick", function()
 			onSelect(option)
+			button:SetText(option.buttonLabel or option.label)
 			popup:Hide()
 			openDropdown = nil
 		end)
@@ -164,6 +168,10 @@ local function updateMacroPreview()
 		content = content:gsub("\n/cast", "\n/laugh\n/cast")
 	end
 		macroPreview:SetText(content)
+	if macroBodyCount then macroBodyCount:SetText(string.format("%d / 255 characters", #content)) end
+	if macroNameInput and not macroNameManuallyEdited then
+		macroNameInput:SetText(("RT " .. key:gsub("[^%w]", "")):sub(1, 16))
+	end
 	if macroDropdown then macroDropdown:Refresh() end
 end
 
@@ -224,7 +232,7 @@ end
 
 local function createMacroSection()
 	font(optionsPanel, "ROGUE MACROS", "GameFontNormal", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -10)
-	font(optionsPanel, "Choose a template, adjust optional fields, then copy the preview into WoW's Macro UI.",
+	font(optionsPanel, "Choose a template, review the text, then create it or copy it to WoW's Macro UI.",
 		"GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -34)
 	font(optionsPanel, "Macro template", "GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -54)
 	font(optionsPanel, "Laugh option for Cheap Shot and Blind", "GameFontHighlightSmall",
@@ -275,24 +283,119 @@ local function createMacroSection()
 	end)
 	font(optionsPanel, "MULTILINE PREVIEW", "GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -158)
 	local previewFrame = CreateFrame("Frame", nil, optionsPanel, "BackdropTemplate")
-	previewFrame:SetSize(640, 230)
+	previewFrame:SetSize(590, 230)
 	previewFrame:SetPoint("TOPLEFT", optionsPanel, "TOPLEFT", 20, -180)
 	setBackdrop(previewFrame, 0.99)
 	macroPreview = CreateFrame("EditBox", nil, previewFrame)
 	macroPreview:SetMultiLine(true)
 	macroPreview:SetAutoFocus(false)
-	macroPreview:SetSize(620, 210)
+	macroPreview:SetSize(570, 210)
 	macroPreview:SetPoint("TOPLEFT", previewFrame, "TOPLEFT", 10, -10)
 	macroPreview:SetFontObject(GameFontHighlightSmall)
 	macroPreview:SetTextInsets(4, 4, 4, 4)
 	macroPreview:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
 	macroPreview:SetScript("OnEditFocusLost", function(self) self:HighlightText(0, 0) end)
-	local selectText = createButton(optionsPanel, "Select macro text", 150, 25, "TOPLEFT", optionsPanel, "TOPLEFT", 20, -425)
+	macroNameInput = CreateFrame("EditBox", nil, optionsPanel, "InputBoxTemplate")
+	macroNameInput:SetAutoFocus(false)
+	macroNameInput:SetSize(210, 25)
+	macroNameInput:SetPoint("TOPLEFT", optionsPanel, "TOPLEFT", 90, -428)
+	macroNameInput:SetMaxLetters(16)
+	macroNameInput:SetScript("OnTextChanged", function(_, userInput)
+		if userInput then macroNameManuallyEdited = true end
+	end)
+	font(optionsPanel, "Name", "GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -420)
+	font(optionsPanel, "Save to", "GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 320, -420)
+	local scopeOptions = {
+		{ key = "account", label = "Account" },
+		{ key = "character", label = "Character" },
+	}
+	local scopeDropdown = makeDropdown(optionsPanel, 150, 25, "TOPLEFT", optionsPanel, "TOPLEFT", 370, -428,
+		scopeOptions,
+		function()
+			for _, option in ipairs(scopeOptions) do
+				if option.key == RoguetastiqDB.macroStorageScope then return option end
+			end
+			return scopeOptions[2]
+		end,
+		function(option)
+			RoguetastiqDB.macroStorageScope = option.key
+		end)
+	local selectText = createButton(optionsPanel, "Select text", 110, 25, "TOPLEFT", optionsPanel, "TOPLEFT", 540, -428)
 	selectText:SetScript("OnClick", function() macroPreview:SetFocus(); macroPreview:HighlightText() end)
-	local copyHelp = font(optionsPanel, "Click the button, press Ctrl+C, then paste into WoW's Macro UI. Roguetastiq never runs this text.",
-		"GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -462)
-	copyHelp:SetWidth(640)
-	copyHelp:SetWordWrap(true)
+	macroBodyCount = font(optionsPanel, "", "GameFontHighlightSmall", "LEFT", optionsPanel, "TOPLEFT", 20, -467)
+	local macroStatus = font(optionsPanel, "", "GameFontHighlightSmall", "LEFT", optionsPanel, "TOPLEFT", 230, -467)
+	local function updateMacroCounts()
+		local accountCount, characterCount = GetNumMacros()
+		local accountMaximum = (Constants and Constants.MacroConsts and Constants.MacroConsts.MAX_ACCOUNT_MACROS) or 120
+		local characterMaximum = (Constants and Constants.MacroConsts and Constants.MacroConsts.MAX_CHARACTER_MACROS) or 30
+		macroStatus:SetText(string.format("Account: %d/%d  Character: %d/%d", accountCount, accountMaximum,
+			characterCount, characterMaximum))
+	end
+	local function macroIndexInScope(name, scope)
+		local accountCount, characterCount = GetNumMacros()
+		local accountMaximum = (Constants and Constants.MacroConsts and Constants.MacroConsts.MAX_ACCOUNT_MACROS) or 120
+		local first = scope == "character" and (accountMaximum + 1) or 1
+		local count = scope == "character" and characterCount or accountCount
+		for index = first, first + count - 1 do
+			local existingName = GetMacroInfo(index)
+			if existingName == name then return index end
+		end
+	end
+	local function createOrReplaceMacro(name, body, scope, existingIndex)
+		if InCombatLockdown() then
+			macroStatus:SetText("Wait until combat ends before creating a macro.")
+			return
+		end
+		local index
+		if existingIndex then
+			index = EditMacro(existingIndex, name, nil, body)
+		else
+			index = CreateMacro(name, 134400, body, scope == "character")
+		end
+		if index and index > 0 then
+			macroStatus:SetText("Macro saved. Roguetastiq did not run it.")
+		else
+			macroStatus:SetText("Macro could not be saved. Check the selected storage limit.")
+		end
+		updateMacroCounts()
+	end
+	StaticPopupDialogs["ROGUETASTIQ_CONFIRM_MACRO_REPLACE"] = {
+		text = "Replace the existing macro named '%s'?",
+		button1 = YES,
+		button2 = CANCEL,
+		OnAccept = function(_, data)
+			createOrReplaceMacro(data.name, data.body, data.scope, data.index)
+		end,
+		timeout = 0,
+		whileDead = true,
+		hideOnEscape = true,
+		showAlert = true,
+	}
+	local createMacroButton = createButton(optionsPanel, "Create this macro", 180, 28,
+		"TOPLEFT", optionsPanel, "TOPLEFT", 20, -492)
+	createMacroButton:SetScript("OnClick", function()
+		if InCombatLockdown() then
+			macroStatus:SetText("Wait until combat ends before creating a macro.")
+			return
+		end
+		local name = macroNameInput:GetText():match("^%s*(.-)%s*$")
+		local body = macroPreview:GetText() or ""
+		local scope = RoguetastiqDB.macroStorageScope or "character"
+		if name == "" then macroStatus:SetText("Enter a macro name first."); return end
+		if #name > 16 then macroStatus:SetText("Macro names can use at most 16 characters."); return end
+		if body == "" then macroStatus:SetText("Macro text is empty."); return end
+		if #body > 255 then macroStatus:SetText("Macro text exceeds the 255-character limit."); return end
+		local existingIndex = macroIndexInScope(name, scope)
+		if existingIndex then
+			StaticPopup_Show("ROGUETASTIQ_CONFIRM_MACRO_REPLACE", name, nil,
+				{ name = name, body = body, scope = scope, index = existingIndex })
+			return
+		end
+		createOrReplaceMacro(name, body, scope)
+	end)
+	font(optionsPanel, "Review the visible text first. Create saves it; it does not execute the macro. Out of combat only.",
+		"GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -527)
+	updateMacroCounts()
 	updateMacroPreview()
 end
 
@@ -513,9 +616,12 @@ function ns.InitializeInterface()
 	end)
 	bar.dragHandle:SetScript("OnDragStop", function()
 		bar:StopMovingOrSizing()
-		local _, _, _, x, y = bar:GetPoint(1)
-		if type(x) == "number" and type(y) == "number" then
-			RoguetastiqDB.barX, RoguetastiqDB.barY = x, y
+		local centerX, centerY = bar:GetCenter()
+		local parentX, parentY = UIParent:GetCenter()
+		if centerX and centerY and parentX and parentY then
+			RoguetastiqDB.barX, RoguetastiqDB.barY = centerX - parentX, centerY - parentY
+			bar:ClearAllPoints()
+			bar:SetPoint("CENTER", UIParent, "CENTER", RoguetastiqDB.barX, RoguetastiqDB.barY)
 		end
 	end)
 	bar.dragHandle:SetScript("OnEnter", function(self)

@@ -37,10 +37,17 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v version="${version}" '
+            $0 ~ "^## " version " — " { found=1; next }
+            found && /^## / { exit }
+            found { print }
+          ' CHANGELOG.md > release-notes.md
+          test -s release-notes.md
           args=()
           if [[ "${GITHUB_REF_NAME}" == v0.* ]]; then args+=(--prerelease); fi
           gh release create "${GITHUB_REF_NAME}" dist/*.zip \
-            --title "${GITHUB_REF_NAME}" --generate-notes "${args[@]}"
+            --title "${GITHUB_REF_NAME}" --notes-file release-notes.md "${args[@]}"
   announce:
     needs: release
     if: always() && (needs.release.result == 'success' || github.event_name == 'workflow_dispatch')

@@ -11,6 +11,7 @@ local defaults = {
 	shoppingRecipeKey = "instant6",
 	shoppingCount = 20,
 	macroTemplate = "kick",
+	macroStorageScope = "character",
 	laughInMacros = false,
 	macroRacial = "none",
 	macroFoodName = "Food Name",

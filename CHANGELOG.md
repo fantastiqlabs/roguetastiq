@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.0.7 — 2026-11-14
+
+### Added
+
+- Added a **Create this macro** action for reviewed templates, with account or character storage, macro-count status, and confirmation before replacing a same-scope macro. Creating a macro never executes it.
+- Added the selected racial to the visible dropdown label and the Burst macro preview.
+
+### Fixed
+
+- Saved the coating bar position relative to the screen center after dragging, so it restores to the same place after reload without requiring the bar to be locked.
+- Narrowed the multiline macro preview to fit within the options panel.
+
 ## 0.0.6 — 2026-11-14
 
 - Replaced the macro input skin with a bordered multiline preview so complete templates are visible.
