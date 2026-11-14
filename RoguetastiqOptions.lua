@@ -32,8 +32,8 @@ local macroOptions = {
 	{ key = "riposte", label = "Riposte, then Sinister Strike", text = "#showtooltip\n/cast Riposte\n/cast Sinister Strike\n/startattack" },
 	{ key = "shank", label = "Shank + Sinister Strike", text = "#showtooltip\n/startattack\n/cast Shank\n/cast Sinister Strike" },
 	{ key = "stealthambush", label = "Ambush from Stealth, Backstab after", text = "#showtooltip\n/cast [stealth] Ambush; Backstab\n/startattack [nostealth]" },
-	{ key = "stealthweapon", label = "Dagger from Stealth, weapon after", text = "#showtooltip [stealth] Ambush; Sinister Strike\n/equipslot [stealth] 16 Dagger Name; 16 Main-Hand Weapon Name\n/cast [stealth] Ambush; Sinister Strike\n/startattack [nostealth]" },
-	{ key = "daggerambush", label = "Dagger Ambush / Backstab", text = "#showtooltip [mod:shift] Backstab; Ambush\n/equipslot 16 Dagger Name\n/cast [mod:shift] Backstab; Ambush\n/startattack [nostealth]" },
+	{ key = "stealthweapon", label = "Dagger from Stealth, weapon after", text = "#showtooltip [stealth] Ambush; Sinister Strike\nWEAPON_SWAP_LINES\n/cast [stealth] Ambush; Sinister Strike\n/startattack [nostealth]" },
+	{ key = "daggerambush", label = "Dagger Ambush / Backstab", text = "#showtooltip [mod:shift] Backstab; Ambush\nDAGGER_USE_LINE\n/cast [mod:shift] Backstab; Ambush\n/startattack [nostealth]" },
 	{ key = "evasion", label = "Evasion + Sprint", text = "#showtooltip Evasion\n/cast Evasion\n/cast Sprint" },
 	{ key = "flurry", label = "Blade Flurry toggle", text = "#showtooltip Blade Flurry\n/cancelaura Blade Flurry\n/cast Blade Flurry" },
 	{ key = "burst", label = "Burst - trinkets + cooldowns", text = "#showtooltip Adrenaline Rush\n/use 13\n/use 14\n/cast %RACIAL%\n/cast Adrenaline Rush\n/cast Blade Flurry" },
@@ -162,6 +162,15 @@ local function updateMacroPreview()
 	content = content:gsub("FOOD_USE_LINE", function()
 		return ns.FoodMacroUseLine(
 			RoguetastiqDB.macroFoodSource, RoguetastiqDB.macroFoodActionButton, RoguetastiqDB.macroFoodName)
+	end)
+	content = content:gsub("WEAPON_SWAP_LINES", function()
+		return ns.WeaponSwapMacroLines(
+			RoguetastiqDB.macroDaggerSource, RoguetastiqDB.macroDaggerActionButton, RoguetastiqDB.macroDaggerName,
+			RoguetastiqDB.macroMainhandSource, RoguetastiqDB.macroMainhandActionButton, RoguetastiqDB.macroMainhandName)
+	end)
+	content = content:gsub("DAGGER_USE_LINE", function()
+		return ns.DaggerMacroUseLine(
+			RoguetastiqDB.macroDaggerSource, RoguetastiqDB.macroDaggerActionButton, RoguetastiqDB.macroDaggerName)
 	end)
 	if key == "burst" then
 		local racial = RoguetastiqDB.macroRacial or "none"
@@ -316,15 +325,64 @@ local function createMacroSection()
 	end)
 	foodSourceDropdown:SetScript("OnLeave", GameTooltip_Hide)
 	foodName:SetEnabled(RoguetastiqDB.macroFoodSource ~= "actionbar")
-	font(optionsPanel, "MULTILINE PREVIEW", "GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -158)
+	font(optionsPanel, "Weapon item name or action button (12 primary-bar buttons)", "GameFontHighlightSmall",
+		"TOPLEFT", optionsPanel, "TOPLEFT", 20, -158)
+	local weaponSources = { { key = "item", label = "Item name" } }
+	for slot = 1, 12 do weaponSources[#weaponSources + 1] = { key = "actionbar", slot = slot, label = "Button " .. slot } end
+	local function createWeaponSource(key, label, nameKey, slotKey, x)
+		font(optionsPanel, label, "GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", x, -176)
+		local name = CreateFrame("EditBox", nil, optionsPanel, "InputBoxTemplate")
+		name:SetAutoFocus(false)
+		name:SetSize(130, 25)
+		name:SetPoint("TOPLEFT", optionsPanel, "TOPLEFT", x + 170, -174)
+		name:SetText(RoguetastiqDB[nameKey] or "Weapon Name")
+		name:SetScript("OnEnterPressed", function(self)
+			RoguetastiqDB[nameKey] = self:GetText()
+			self:ClearFocus()
+			updateMacroPreview()
+		end)
+		local dropdown = makeDropdown(optionsPanel, 155, 25, "TOPLEFT", optionsPanel, "TOPLEFT", x, -194,
+			weaponSources,
+			function()
+				if RoguetastiqDB[key] == "actionbar" then
+					for _, option in ipairs(weaponSources) do
+						if option.slot == (RoguetastiqDB[slotKey] or 1) then return option end
+					end
+				end
+				return weaponSources[1]
+			end,
+			function(option)
+				RoguetastiqDB[key] = option.key
+				RoguetastiqDB[slotKey] = option.slot or RoguetastiqDB[slotKey] or 1
+				name:SetEnabled(option.key == "item")
+				updateMacroPreview()
+			end)
+		name:SetEnabled(RoguetastiqDB[key] ~= "actionbar")
+		return dropdown
+	end
+	local daggerSource = createWeaponSource("macroDaggerSource", "Dagger", "macroDaggerName", "macroDaggerActionButton", 20)
+	local mainhandSource = createWeaponSource("macroMainhandSource", "Normal main-hand", "macroMainhandName", "macroMainhandActionButton", 350)
+	local function explainWeaponSource(dropdown)
+		dropdown:SetScript("OnEnter", function(self)
+			GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+			GameTooltip:AddLine("Weapon source", 1, 1, 1)
+			GameTooltip:AddLine("Use an exact item name or place an item-use/equip action on the selected primary action button. An empty button does nothing; changing the button changes what the macro clicks.", 1, 1, 1, true)
+			GameTooltip:AddLine("ActionButtonN follows the active primary bar page. Test paging and /click behavior in the current Forever client.", 1, 0.8, 0.3, true)
+			GameTooltip:Show()
+		end)
+		dropdown:SetScript("OnLeave", GameTooltip_Hide)
+	end
+	explainWeaponSource(daggerSource)
+	explainWeaponSource(mainhandSource)
+	font(optionsPanel, "MULTILINE PREVIEW", "GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -224)
 	local previewFrame = CreateFrame("Frame", nil, optionsPanel, "BackdropTemplate")
-	previewFrame:SetSize(590, 230)
-	previewFrame:SetPoint("TOPLEFT", optionsPanel, "TOPLEFT", 20, -180)
+	previewFrame:SetSize(590, 165)
+	previewFrame:SetPoint("TOPLEFT", optionsPanel, "TOPLEFT", 20, -244)
 	setBackdrop(previewFrame, 0.99)
 	macroPreview = CreateFrame("EditBox", nil, previewFrame)
 	macroPreview:SetMultiLine(true)
 	macroPreview:SetAutoFocus(false)
-	macroPreview:SetSize(570, 210)
+	macroPreview:SetSize(570, 145)
 	macroPreview:SetPoint("TOPLEFT", previewFrame, "TOPLEFT", 10, -10)
 	macroPreview:SetFontObject(GameFontHighlightSmall)
 	macroPreview:SetTextInsets(4, 4, 4, 4)
