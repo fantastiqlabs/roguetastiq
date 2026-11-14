@@ -13,7 +13,7 @@ Product title: **Roguetastiq - The giga rogue toolkit!**
 7. Provide selectable, editable Rogue macro previews for stealth, Sap, Pick Pocket, start attack, cooldown/racial combinations, weapon swaps, and dagger Ambush/Backstab. Support configurable food and racial placeholders and optional `/laugh` in Cheap Shot and Blind. The player copies text into WoW's macro UI.
 8. Provide a toggleable opposing-faction alert, configurable for open world, battlegrounds/arenas, dungeons/raids, or everywhere. Let the player choose from common WoW sounds or Cheer, Laugh, and Roar emotes, preview the selection, and explain that emote choices perform the character emote. Detection is limited to visible enemy nameplates.
 9. Show in-game mail feedback contact details and a copyable GitHub repository link in the options screen.
-10. Fadeleaf reminders near vendors/Auction House, last-paid price hints when reliable transaction data is available, and a configurable low Flash Powder warning.
+10. Configurable Fadeleaf reminders near vendors/Auction House and a configurable low Flash Powder warning. Show a last-paid Fadeleaf price only if the current client provides reliable transaction history; never substitute the vendor's asking price or a guessed amount.
 
 ## Interaction boundary
 
@@ -28,4 +28,4 @@ Use SemVer, beginning at `0.0.1`. Publish a tagged ZIP for every version from th
 - Verify interactions in the live Forever client, including combat lockdown, item targeting, saved bar placement, opponent alerts, macro ordering, and shopping counts.
 - Add automatic catalog refresh/build from verified game data and patch snapshots.
 - Add localized item names and supported locale coverage.
-- Finish vendor-sold reagent detection, Fadeleaf transaction data, and low Flash Powder reminders.
+- Verify supply reminders and item IDs in the current Forever client. Revisit last-paid Fadeleaf display only if a reliable transaction-history source becomes available.

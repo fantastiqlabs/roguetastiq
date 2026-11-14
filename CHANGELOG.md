@@ -8,13 +8,16 @@
 - Added a deliberate **Buy required materials** action that buys only available missing reagents. Optional auto-buy on supported vendor open is configurable and off by default.
 - Added filterable world-map and minimap markers for Forever-seen Shady Dealers, poison reagent vendors, and Rogue trainers, with nearby world-map NPCs grouped into shared tooltips.
 - Added a Stealth/eat food source selector for an exact item name or one of the first 12 action buttons holding the player's preferred food.
+- Added configurable Fadeleaf reminders at vendors and the Auction House, plus a low Flash Powder warning with an adjustable threshold.
 - Added purchase-plan and merchant-session tests for exact quantities, stock, money, bag capacity, popup configuration, and the opt-in repeat guard.
+- Added supply-reminder tests for thresholds, disabled settings, and one-warning-per-low-stock period.
 
 ### Safety
 
 - Purchases stop at Blizzard's high-value confirmation threshold and report partial or client-blocked requests. The addon never claims it crafted poison.
 - Live client verification remains required for Forever's addon-originated merchant purchase behavior.
 - NPC marker placement and minimap rotation still require live client verification against the current Forever build.
+- Last-paid Fadeleaf price is not shown because the current client exposes no reliable transaction-history source.
 
 ## 0.0.7 — 2026-11-14
 
@@ -77,4 +80,4 @@ Initial public development preview.
 - Added configurable time and charge warning thresholds.
 - Added Forever API research and release/install notes.
 
-The initial preview has not been loaded in the live game client. Reagent planning, supply reminders, and the macro builder remain planned work.
+The initial preview has not been loaded in the live game client. Client-dependent behavior remains subject to the smoke checks listed in the product documentation.

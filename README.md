@@ -25,6 +25,7 @@ Roguetastiq keeps the two essentials visible and the rest out of the way. Its Ma
 - Prefer the highest rank you have in your bags within each selected poison family.
 - Calculate materials for a selected poison recipe and batch size, subtracting what you already carry.
 - Preview missing reagents at supported poison vendors and buy those reagents with one deliberate click; optional vendor auto-buy is off by default.
+- Get configurable Fadeleaf reminders at vendors and the Auction House, plus a configurable low Flash Powder warning.
 - Preview Rogue macros for Stealth, Sap, weapon swaps, Ambush/Backstab, auto-attack, and cooldowns. Optionally add `/laugh` to Cheap Shot and Blind.
 - Configure the Stealth/eat macro with an exact food item name or an action button holding your preferred food.
 - Get an optional sound when an opposing-faction player appears on a visible enemy nameplate, scoped to the contexts you choose.
@@ -34,7 +35,12 @@ The poison picker is restricted to poisons Rogues can currently learn from a poi
 
 ## Upcoming 0.0.8 preview
 
-The 0.0.8 preview adds a poison-vendor reagent popup with a one-click purchase action and optional auto-buy, off by default, plus filterable world-map and minimap markers for the currently catalogued Forever-seen dealers, poison suppliers, and Rogue trainers. It also retains the 0.0.7 macro-creation, racial-selection, and saved-bar-position changes. Vendor purchases and marker placement require a manual check in the current Forever client before 0.0.8 is released.
+The 0.0.8 preview adds a poison-vendor reagent popup with a one-click purchase action and optional auto-buy, off by default, configurable Fadeleaf and Flash Powder reminders, and filterable world-map/minimap markers for catalogued Forever-seen NPCs. It also retains the 0.0.7 macro-creation, racial-selection, and saved-bar-position changes. Vendor purchases, reminder triggers, and marker placement require a manual check in the current Forever client before 0.0.8 is released.
+
+Supply reminders are configurable in the **Supplies** options tab. Fadeleaf
+reminders include bag count; Flash Powder warnings can be disabled and have an
+adjustable threshold. The current Forever client does not expose reliable
+last-paid Fadeleaf history, so Roguetastiq does not guess or display that price.
 
 **The coating actions and vendor purchase behavior have not yet been verified in the live Forever client.** Please test them in game and report the client build and any Lua error before relying on them.
 

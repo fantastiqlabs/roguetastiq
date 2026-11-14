@@ -514,6 +514,10 @@ local function makeCounter(labelText, key, step, maxValue, x, top)
 		local current = RoguetastiqDB[key]
 		if key == "timeThreshold" then
 			value:SetText(string.format("%d min %02d sec", math.floor(current / 60), current % 60))
+		elseif key == "fadeleafThreshold" then
+			value:SetText(tostring(current) .. " Fadeleaf or fewer")
+		elseif key == "flashPowderThreshold" then
+			value:SetText(tostring(current) .. " or fewer")
 		else
 			value:SetText(tostring(current) .. " charges")
 		end
@@ -521,12 +525,28 @@ local function makeCounter(labelText, key, step, maxValue, x, top)
 	minus:SetScript("OnClick", function()
 		RoguetastiqDB[key] = math.max(0, RoguetastiqDB[key] - step)
 		update(); ns.Render()
+		if key == "flashPowderThreshold" then ns.CheckFlashPowderReminder() end
 	end)
 	plus:SetScript("OnClick", function()
 		RoguetastiqDB[key] = math.min(maxValue, RoguetastiqDB[key] + step)
 		update(); ns.Render()
+		if key == "flashPowderThreshold" then ns.CheckFlashPowderReminder() end
 	end)
 	update()
+end
+
+local function makeSupplyToggle(key, label, x, y, onChanged)
+	local toggle = CreateFrame("CheckButton", nil, optionsPanel, "UICheckButtonTemplate")
+	toggle:SetSize(24, 24)
+	toggle:SetPoint("TOPLEFT", optionsPanel, "TOPLEFT", x, y)
+	local text = font(optionsPanel, label, "GameFontHighlight", "LEFT", toggle, "RIGHT", 4, 0)
+	text:SetWidth(570)
+	toggle:SetChecked(RoguetastiqDB[key] == true)
+	toggle:SetScript("OnClick", function(self)
+		RoguetastiqDB[key] = self:GetChecked()
+		if onChanged then onChanged() end
+	end)
+	return toggle
 end
 
 local function setMinimapPosition()
@@ -680,11 +700,13 @@ function ns.InitializeInterface()
 		{ key = "settings", label = "Addon Settings" },
 		{ key = "pvp", label = "PvP" },
 		{ key = "maps", label = "Maps" },
+		{ key = "supplies", label = "Supplies" },
 	}
 	local pages, tabs = {}, {}
+	local tabWidth, tabStep = 112, 116
 	for index, spec in ipairs(tabSpecs) do
-		local tab = createButton(settingsCanvas, spec.label, 132, 28,
-			"TOPLEFT", settingsCanvas, "TOPLEFT", 20 + (index - 1) * 138, -42)
+		local tab = createButton(settingsCanvas, spec.label, tabWidth, 28,
+			"TOPLEFT", settingsCanvas, "TOPLEFT", 20 + (index - 1) * tabStep, -42)
 		local page = CreateFrame("Frame", nil, settingsCanvas)
 		page:SetSize(680, 555)
 		page:SetPoint("TOPLEFT", settingsCanvas, "TOPLEFT", 20, -78)
@@ -855,6 +877,21 @@ function ns.InitializeInterface()
 		"GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -254)
 	mapNote:SetWidth(640)
 	mapNote:SetWordWrap(true)
+
+	optionsPanel = pages.supplies
+	font(optionsPanel, "ROGUE SUPPLIES", "GameFontNormal", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -8)
+	font(optionsPanel, "Configurable bag reminders for Fadeleaf and Flash Powder.",
+		"GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -30)
+	makeSupplyToggle("fadeleafReminder", "Remind me about Fadeleaf at vendors and the Auction House.", 16, -56)
+	makeCounter("Fadeleaf reminder at or below", "fadeleafThreshold", 1, 100, 20, -94)
+	makeSupplyToggle("flashPowderWarning", "Warn when Flash Powder is running low.", 16, -148,
+		function() ns.CheckFlashPowderReminder() end)
+	makeCounter("Flash Powder warning at or below", "flashPowderThreshold", 1, 100, 20, -186)
+	local priceNote = font(optionsPanel,
+		"Last-paid Fadeleaf price is not shown: the current client does not expose a reliable purchase-history value.",
+		"GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -242)
+	priceNote:SetWidth(630)
+	priceNote:SetWordWrap(true)
 
 	optionsPanel = pages.pvp
 	createThreatAlertSection()

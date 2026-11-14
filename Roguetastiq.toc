@@ -6,6 +6,7 @@
 ## SavedVariables: RoguetastiqDB
 
 RoguetastiqCatalog.lua
+RoguetastiqSupplies.lua
 RoguetastiqShopping.lua
 RoguetastiqMacro.lua
 RoguetastiqLocations.lua
