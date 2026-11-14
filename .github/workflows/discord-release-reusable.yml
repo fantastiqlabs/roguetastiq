@@ -35,7 +35,7 @@ jobs:
             echo "Fantastiq Labs Discord webhook secret is empty." >&2
             exit 1
           fi
-		  release_data="$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json name,tagName,url,body)"
+          release_data="$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json name,tagName,url,body)"
           release_title="$(jq -r '.name // .tagName' <<< "$release_data")"
           RELEASE_URL="$(jq -r '.url' <<< "$release_data")"
           RELEASE_BODY="$(jq -r '.body // empty' <<< "$release_data")"
