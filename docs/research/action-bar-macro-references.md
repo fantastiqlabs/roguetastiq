@@ -1,6 +1,7 @@
 # Action-bar and weapon macro references
 
-Research for [issue #10](https://github.com/fantastiqlabs/roguetastiq/issues/10), checked 2026-11-14.
+Research for [issue #10](https://github.com/fantastiqlabs/roguetastiq/issues/10) and
+[issue #12](https://github.com/fantastiqlabs/roguetastiq/issues/12), checked 2026-11-14.
 
 ## Findings
 
@@ -19,3 +20,12 @@ The macro options retain exact item-name inputs and add primary-bar selectors fo
 2. Test `/click ActionButtonN` from a macro on Forever 1.60.1.
 3. Change primary-bar pages and confirm the warning matches observed behavior.
 4. Test the generated Stealth/normal weapon macro, dagger opener macro, reload, and combat behavior.
+
+## Food selection and `/use`
+
+- The existing **Stealth, then eat** options already provide the issue #12 fallback: select either an exact item name or one of 12 primary-bar buttons. The preview emits `/use [stealth] <item name>` or `/click [stealth] ActionButtonN`, respectively. There is no automatic bag scan, best-food ranking, or runtime fallback between foods; changing food requires changing the named item or selected button contents.
+- In the Forever UI-source mirror, the secure `/use` handler parses the macro's selected argument into an item name, bag, and slot, then calls the secure item-use function. It does not inspect the bags or rank candidate foods. A copied macro therefore needs a concrete item reference and does not adapt when inventory changes. [Forever `SlashCommands.lua`, `/use`](https://github.com/Gethe/wow-ui-source/blob/forever/Interface/AddOns/Blizzard_ChatFrameBase/Shared/SlashCommands.lua#L2843-L2863)
+- The same source registers `/click` through a secure handler that looks up a named UI button and clicks it only when that button has no access constraints or forbidden scripted-input aspects. This supports documenting a selected `ActionButtonN` as an optional, client-dependent macro reference; it does not make the food choice dynamic or inspect what is on that button. [Forever `SlashCommands.lua`, `/click`](https://github.com/Gethe/wow-ui-source/blob/forever/Interface/AddOns/Blizzard_ChatFrameBase/Shared/SlashCommands.lua#L3433-L3461)
+- Blizzard's macro API notes explain that UI macros are restricted to prevent Lua/API state changes from conditionally controlling secure actions; equipment actions remain available through regular macro commands. This backs the safe design boundary: do not generate `/run` bag-scanning code that tries to choose and use food as part of a combat macro. [Blizzard 10.2 Macro API Changes](https://us.forums.blizzard.com/en/wow/t/102-macro-api-changes/1691891)
+
+**Version caveat:** `Gethe/wow-ui-source` is a community-maintained mirror of client UI source, not an official Blizzard publication. Its `forever` branch is useful implementation evidence but does not prove that WoW Forever's deployed 1.60.1 client has identical macro parsing or secure-button behavior. Verify `/click ActionButtonN`, food use after Stealth, and bag changes in that live client before treating button mode as supported. Keep the exact item-name option as the reliable fallback.

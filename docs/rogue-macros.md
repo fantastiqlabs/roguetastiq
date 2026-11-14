@@ -94,7 +94,7 @@ The same pattern can be adapted for other damage abilities. Check the result in 
 /use [stealth] FOOD_ITEM
 ```
 
-In the addon's macro options, choose an exact item name or select one of the first 12 action buttons. For action-button mode, put the food you want to use directly on that button; the generated macro uses `/click [stealth] ActionButtonN`. The addon cannot inspect the bar at macro runtime, dynamically rank bag food, or move food between slots. The intended flow is one press to enter Stealth, then another press to eat. Verify whether food use exits Stealth and whether `/click` works in a macro on the current Forever build.
+In the addon's macro options, choose an exact item name or select one of the first 12 action buttons. For action-button mode, put the food you want to use directly on that button; the generated macro uses `/click [stealth] ActionButtonN`. The addon cannot inspect the bar at macro runtime, dynamically rank bag food, or move food between slots. This item-name/action-button choice already supplies the supported selection options; there is no automatic best-food selection. The intended flow is one press to enter Stealth, then another press to eat. Verify whether food use exits Stealth and whether `/click` works in a macro on the current Forever build. See [action-bar and food macro research](research/action-bar-macro-references.md) for sources and limitations.
 
 ### Dagger Ambush / Backstab
 
