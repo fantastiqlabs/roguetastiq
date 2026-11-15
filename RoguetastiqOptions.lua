@@ -3,6 +3,7 @@ local _, ns = ...
 local choiceRows = {}
 local optionsPanel
 local category
+local qolCategory
 local minimapButton
 local openDropdown
 local shoppingSummary
@@ -752,37 +753,28 @@ function ns.InitializeInterface()
 	settingsCanvas:SetSize(740, 650)
 	setBackdrop(settingsCanvas, 0.97)
 	font(settingsCanvas, "Roguetastiq - The giga rogue toolkit!", "GameFontNormalLarge", "TOPLEFT", settingsCanvas, "TOPLEFT", 20, -14)
+	font(settingsCanvas, "Choose a settings section from the AddOns menu.", "GameFontHighlight",
+		"TOPLEFT", settingsCanvas, "TOPLEFT", 20, -46)
 	local tabSpecs = {
 		{ key = "qol", label = "QOL" },
 		{ key = "macros", label = "Macros" },
-		{ key = "settings", label = "Addon Settings" },
+		{ key = "settings", label = "Settings" },
 		{ key = "pvp", label = "PvP" },
 		{ key = "maps", label = "Maps" },
 		{ key = "supplies", label = "Supplies" },
 	}
-	local pages, tabs = {}, {}
-	local tabWidth, tabStep = 112, 116
-	for index, spec in ipairs(tabSpecs) do
-		local tab = createButton(settingsCanvas, spec.label, tabWidth, 28,
-			"TOPLEFT", settingsCanvas, "TOPLEFT", 20 + (index - 1) * tabStep, -42)
-		local page = CreateFrame("Frame", nil, settingsCanvas)
-		page:SetSize(680, 555)
-		page:SetPoint("TOPLEFT", settingsCanvas, "TOPLEFT", 20, -78)
+	local pages = {}
+	for _, spec in ipairs(tabSpecs) do
+		local page = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
+		page:SetSize(740, 650)
+		setBackdrop(page, 0.97)
 		page:Hide()
-		pages[spec.key], tabs[spec.key] = page, tab
-		local pageKey = spec.key
-		tab:SetScript("OnClick", function()
-			for key, candidate in pairs(pages) do
-				if key == pageKey then candidate:Show() else candidate:Hide() end
-			end
-			for key, candidate in pairs(tabs) do candidate:SetEnabled(key ~= pageKey) end
-		end)
+		pages[spec.key] = page
 	end
 	local function selectPage(key)
 		for pageKey, page in pairs(pages) do
 			if pageKey == key then page:Show() else page:Hide() end
 		end
-		for tabKey, tab in pairs(tabs) do tab:SetEnabled(tabKey ~= key) end
 	end
 
 	optionsPanel = pages.qol
@@ -953,8 +945,6 @@ function ns.InitializeInterface()
 
 	optionsPanel = pages.pvp
 	createThreatAlertSection()
-	selectPage("qol")
-
 	if C_AddOns and C_AddOns.LoadAddOn and C_AddOns.IsAddOnLoaded
 		and not C_AddOns.IsAddOnLoaded("Blizzard_Settings") then
 		C_AddOns.LoadAddOn("Blizzard_Settings")
@@ -962,11 +952,44 @@ function ns.InitializeInterface()
 	if Settings and Settings.RegisterCanvasLayoutCategory and Settings.RegisterAddOnCategory then
 		category = Settings.RegisterCanvasLayoutCategory(settingsCanvas, "Roguetastiq")
 		Settings.RegisterAddOnCategory(category)
+		if Settings.RegisterCanvasLayoutSubcategory then
+			for _, spec in ipairs(tabSpecs) do
+				local subcategory = Settings.RegisterCanvasLayoutSubcategory(category, pages[spec.key], spec.label)
+				if spec.key == "qol" then qolCategory = subcategory end
+			end
+		else
+			local tabWidth, tabStep = 96, 100
+			for index, spec in ipairs(tabSpecs) do
+				local tab = createButton(settingsCanvas, spec.label, tabWidth, 28,
+					"TOPLEFT", settingsCanvas, "TOPLEFT", 20 + (index - 1) * tabStep, -42)
+				local page = pages[spec.key]
+				page:SetParent(settingsCanvas)
+				page:SetSize(680, 555)
+				page:SetPoint("TOPLEFT", settingsCanvas, "TOPLEFT", 20, -78)
+				local pageKey = spec.key
+				tab:SetScript("OnClick", function() selectPage(pageKey) end)
+			end
+			selectPage("qol")
+		end
+	else
+		local tabWidth, tabStep = 96, 100
+		for index, spec in ipairs(tabSpecs) do
+			local tab = createButton(settingsCanvas, spec.label, tabWidth, 28,
+				"TOPLEFT", settingsCanvas, "TOPLEFT", 20 + (index - 1) * tabStep, -42)
+			local page = pages[spec.key]
+			page:SetParent(settingsCanvas)
+			page:SetSize(680, 555)
+			page:SetPoint("TOPLEFT", settingsCanvas, "TOPLEFT", 20, -78)
+			local pageKey = spec.key
+			tab:SetScript("OnClick", function() selectPage(pageKey) end)
+		end
+		selectPage("qol")
 	end
 	ns.OptionsPanel = pages.qol
 	ns.OpenSettings = function()
 		if category and Settings and Settings.OpenToCategory then
-			Settings.OpenToCategory(category.ID or category:GetID())
+			Settings.OpenToCategory(qolCategory and (qolCategory.ID or (qolCategory.GetID and qolCategory:GetID()))
+				or category.ID or category:GetID())
 		else
 			settingsCanvas:Show()
 		end
