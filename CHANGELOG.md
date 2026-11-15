@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Keep the coating bar's dropped screen anchor when saving and restoring its position.
+
 ## 0.0.8 — 2026-11-14
 
 ### Added

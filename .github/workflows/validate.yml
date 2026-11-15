@@ -18,7 +18,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes lua5.4
       - name: Check Lua syntax
-        run: luac5.4 -p RoguetastiqCatalog.lua RoguetastiqSupplies.lua RoguetastiqShopping.lua RoguetastiqMacro.lua RoguetastiqLocations.lua Roguetastiq.lua RoguetastiqMaps.lua RoguetastiqOptions.lua
+        run: luac5.4 -p RoguetastiqCatalog.lua RoguetastiqSupplies.lua RoguetastiqShopping.lua RoguetastiqMacro.lua RoguetastiqLocations.lua Roguetastiq.lua RoguetastiqPosition.lua RoguetastiqMaps.lua RoguetastiqOptions.lua
       - name: Test Fadeleaf and Flash Powder reminders
         run: lua5.4 tests/supply-reminders.lua
       - name: Test purchase planning
@@ -29,6 +29,8 @@ jobs:
         run: lua5.4 tests/map-markers.lua .
       - name: Test macro food references
         run: lua5.4 tests/macro-food.lua .
+      - name: Test coating bar position persistence
+        run: lua5.4 tests/bar-position.lua
       - name: Build addon archive
         run: python3 scripts/package.py
       - name: Verify packaged shopping module
@@ -37,5 +39,6 @@ jobs:
           unzip -l dist/Roguetastiq_0.0.8.zip | grep -F 'Roguetastiq/RoguetastiqSupplies.lua'
           unzip -l dist/Roguetastiq_0.0.8.zip | grep -F 'Roguetastiq/RoguetastiqMacro.lua'
           unzip -l dist/Roguetastiq_0.0.8.zip | grep -F 'Roguetastiq/RoguetastiqLocations.lua'
+          unzip -l dist/Roguetastiq_0.0.8.zip | grep -F 'Roguetastiq/RoguetastiqPosition.lua'
           unzip -l dist/Roguetastiq_0.0.8.zip | grep -F 'Roguetastiq/RoguetastiqMaps.lua'
           unzip -l dist/Roguetastiq_0.0.8.zip | grep -F 'Roguetastiq/RoguetastiqMapPins.xml'
