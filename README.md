@@ -37,9 +37,9 @@ Roguetastiq keeps the two essentials visible and the rest out of the way. Its Ma
 
 The poison picker is restricted to poisons Rogues can currently learn from a poison trainer in WoW: Forever. Entries found only in unused client data stay out of the picker.
 
-## Upcoming 0.0.8 preview
+## Upcoming 0.0.9 preview
 
-The 0.0.8 preview adds a poison-vendor reagent popup with a one-click purchase action and optional auto-buy, off by default, configurable Fadeleaf and Flash Powder reminders, and filterable world-map/minimap markers for catalogued Forever-seen NPCs. It also retains the 0.0.7 macro-creation, racial-selection, and saved-bar-position changes. Vendor purchases, reminder triggers, and marker placement require a manual check in the current Forever client before 0.0.8 is released.
+The 0.0.9 preview fixes the coating bar shifting after drag, lock, or reload by preserving the anchor chosen when the bar is dropped. Existing 0.0.8 saved positions are retained. The 0.0.8 release also includes poison-vendor shopping, supply reminders, and Forever NPC map markers; verify those behaviors in the current client if you have not already.
 
 Supply reminders are configurable in the **Supplies** options tab. Fadeleaf
 reminders include bag count; Flash Powder warnings can be disabled and have an
@@ -68,6 +68,7 @@ Every version gets a tagged release and downloadable ZIP from the start. Rogueta
    <Forever client folder>/Interface/AddOns/Roguetastiq/RoguetastiqMacro.lua
    <Forever client folder>/Interface/AddOns/Roguetastiq/RoguetastiqLocations.lua
    <Forever client folder>/Interface/AddOns/Roguetastiq/Roguetastiq.lua
+   <Forever client folder>/Interface/AddOns/Roguetastiq/RoguetastiqPosition.lua
    <Forever client folder>/Interface/AddOns/Roguetastiq/RoguetastiqMaps.lua
    <Forever client folder>/Interface/AddOns/Roguetastiq/RoguetastiqMapPins.xml
    <Forever client folder>/Interface/AddOns/Roguetastiq/RoguetastiqOptions.lua

@@ -35,10 +35,12 @@ jobs:
         run: python3 scripts/package.py
       - name: Verify packaged shopping module
         run: |
-          unzip -l dist/Roguetastiq_0.0.8.zip | grep -F 'Roguetastiq/RoguetastiqShopping.lua'
-          unzip -l dist/Roguetastiq_0.0.8.zip | grep -F 'Roguetastiq/RoguetastiqSupplies.lua'
-          unzip -l dist/Roguetastiq_0.0.8.zip | grep -F 'Roguetastiq/RoguetastiqMacro.lua'
-          unzip -l dist/Roguetastiq_0.0.8.zip | grep -F 'Roguetastiq/RoguetastiqLocations.lua'
-          unzip -l dist/Roguetastiq_0.0.8.zip | grep -F 'Roguetastiq/RoguetastiqPosition.lua'
-          unzip -l dist/Roguetastiq_0.0.8.zip | grep -F 'Roguetastiq/RoguetastiqMaps.lua'
-          unzip -l dist/Roguetastiq_0.0.8.zip | grep -F 'Roguetastiq/RoguetastiqMapPins.xml'
+          version="$(sed -n 's/^## Version: //p' Roguetastiq.toc)"
+          archive="dist/Roguetastiq_${version}.zip"
+          unzip -l "$archive" | grep -F 'Roguetastiq/RoguetastiqShopping.lua'
+          unzip -l "$archive" | grep -F 'Roguetastiq/RoguetastiqSupplies.lua'
+          unzip -l "$archive" | grep -F 'Roguetastiq/RoguetastiqMacro.lua'
+          unzip -l "$archive" | grep -F 'Roguetastiq/RoguetastiqLocations.lua'
+          unzip -l "$archive" | grep -F 'Roguetastiq/RoguetastiqPosition.lua'
+          unzip -l "$archive" | grep -F 'Roguetastiq/RoguetastiqMaps.lua'
+          unzip -l "$archive" | grep -F 'Roguetastiq/RoguetastiqMapPins.xml'
