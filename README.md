@@ -37,9 +37,9 @@ Roguetastiq keeps the two essentials visible and the rest out of the way. Its Ma
 
 The poison picker is restricted to poisons Rogues can currently learn from a poison trainer in WoW: Forever. Entries found only in unused client data stay out of the picker.
 
-## Upcoming 0.0.9 preview
+## Upcoming 0.0.10 preview
 
-The 0.0.9 preview fixes the coating bar shifting after drag, lock, or reload by preserving the anchor chosen when the bar is dropped. Existing 0.0.8 saved positions are retained. The 0.0.8 release also includes poison-vendor shopping, supply reminders, and Forever NPC map markers; verify those behaviors in the current client if you have not already.
+The 0.0.10 preview adds recipe/rank and batch-size selectors directly in the poison-vendor popup. Recipe ranks are listed highest-first within each family, and the estimated cost and missing reagents update when you change the selection. Purchases still buy only available missing reagents; the addon does not craft poisons.
 
 Supply reminders are configurable in the **Supplies** options tab. Fadeleaf
 reminders include bag count; Flash Powder warnings can be disabled and have an
