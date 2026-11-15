@@ -1,10 +1,16 @@
 # WoW Forever API and coating research
 
-Research snapshot: 2026-11-14. This is a working snapshot, not a promise that Blizzard will keep the same API or item data. Recheck the in-game client build and source after patches.
+Research snapshot: 2026-11-15. This is a working snapshot, not a promise that Blizzard will keep the same API or item data. Recheck the in-game client build and source after patches.
 
 ## Client compatibility
 
 WoW Forever uses the modern WoW UI API surface. The existing Fantastiq Labs TBC addon is a different client and its `20506` interface number and legacy addon assumptions must not be copied here. Forever client references report interface `16001` for the 1.60.1 line; confirm locally with `/dump select(4, GetBuildInfo())` before setting `## Interface` in the TOC.
+
+## AddOn settings subcategories
+
+Forever's Blizzard Settings UI supports `Settings.RegisterCanvasLayoutCategory(frame, name)` for an addon's root page and `Settings.RegisterCanvasLayoutSubcategory(parentCategory, frame, name)` for child pages. Register the root with `Settings.RegisterAddOnCategory`; a subcategory is attached to its parent and can be opened by its own category ID. Load `Blizzard_Settings` before registering these categories. Roguetastiq uses native child categories for QOL, macros, addon settings, PvP, maps, and supplies, with compact in-panel tabs as a fallback if the child-category API is unavailable.
+
+Primary sources: [Forever Blizzard_Settings.lua](https://github.com/Gethe/wow-ui-source/blob/forever/Interface/AddOns/Blizzard_Settings_Shared/Blizzard_Settings.lua#L126-L157) and [Forever Blizzard_SettingsInbound.lua](https://github.com/Gethe/wow-ui-source/blob/forever/Interface/AddOns/Blizzard_Settings_Shared/Blizzard_SettingsInbound.lua#L86-L92).
 
 ## Weapon coating status
 

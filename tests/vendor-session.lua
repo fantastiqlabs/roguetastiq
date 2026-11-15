@@ -4,6 +4,7 @@ local ns = {
 }
 local purchases, timers, namedFrames, createdFrames = {}, {}, {}, {}
 local vendorGUID = "poison-vendor-1"
+local vendorItemID = 2928
 local shown = true
 local methods = {}
 function methods:SetSize() end
@@ -44,7 +45,7 @@ C_Container = {
 }
 NUM_BAG_SLOTS = 4
 GetMerchantNumItems = function() return 1 end
-GetMerchantItemID = function() return 2928 end
+GetMerchantItemID = function() return vendorItemID end
 GetMoney = function() return 5000 end
 GetMoneyString = function(value) return tostring(value) end
 GetMerchantItemMaxStack = function() return 20 end
@@ -68,8 +69,20 @@ if RoguetastiqDB.autoBuyMaterials then ns.AutoBuyVendorMaterials() end
 while #timers > 0 do table.remove(timers, 1)() end
 assert(#purchases == 0, "the auto-buy preference defaults off")
 
+ns.CloseVendorShopping()
+vendorGUID = "ordinary-vendor"
+vendorItemID = 9999
+RoguetastiqDB.autoBuyMaterials = true
+ns.OnMerchantShow()
+assert(not namedFrames.RoguetastiqVendorShopping:IsShown(), "ordinary vendors do not show poison shopping")
+ns.AutoBuyVendorMaterials()
+while #timers > 0 do table.remove(timers, 1)() end
+assert(#purchases == 0, "ordinary vendors never auto-buy poison reagents")
+
 RoguetastiqDB.autoBuyMaterials = true
 ns.CloseVendorShopping()
+vendorGUID = "poison-vendor-1"
+vendorItemID = 2928
 ns.OnMerchantShow()
 ns.AutoBuyVendorMaterials()
 ns.AutoBuyVendorMaterials()
