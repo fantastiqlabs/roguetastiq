@@ -19,6 +19,7 @@ files = [
     ROOT / "RoguetastiqMacro.lua",
     ROOT / "RoguetastiqLocations.lua",
     ROOT / "Roguetastiq.lua",
+    ROOT / "RoguetastiqPosition.lua",
     ROOT / "RoguetastiqMaps.lua",
     ROOT / "RoguetastiqMapPins.xml",
     ROOT / "RoguetastiqOptions.lua",

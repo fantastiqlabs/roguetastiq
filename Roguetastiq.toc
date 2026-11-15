@@ -11,6 +11,7 @@ RoguetastiqShopping.lua
 RoguetastiqMacro.lua
 RoguetastiqLocations.lua
 Roguetastiq.lua
+RoguetastiqPosition.lua
 RoguetastiqMaps.lua
 RoguetastiqMapPins.xml
 RoguetastiqOptions.lua
