@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Added poison recipe/rank and batch-size selectors to the vendor popup, with updated estimated reagent costs.
+
 ## 0.0.9 — 2026-11-15
 
 ### Fixed

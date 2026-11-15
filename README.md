@@ -28,7 +28,7 @@ Roguetastiq keeps the two essentials visible and the rest out of the way. Its Ma
 - Map normal, Shift, Ctrl, and Alt clicks through dropdowns for each hand.
 - Prefer the highest rank you have in your bags within each selected poison family.
 - Calculate materials for a selected poison recipe and batch size, subtracting what you already carry.
-- Preview missing reagents at supported poison vendors and buy those reagents with one deliberate click; optional vendor auto-buy is off by default.
+- At supported poison vendors, choose a poison rank and batch size, see the missing reagents and estimated cost, then buy those reagents with one deliberate click; optional vendor auto-buy is off by default.
 - Get configurable Fadeleaf reminders at vendors and the Auction House, plus a configurable low Flash Powder warning.
 - Preview Rogue macros for Stealth, Sap, weapon swaps, Ambush/Backstab, auto-attack, and cooldowns. Optionally add `/laugh` to Cheap Shot and Blind.
 - Configure the Stealth/eat macro with an exact food item name or an action button holding your preferred food.
