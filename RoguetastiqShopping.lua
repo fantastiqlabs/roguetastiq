@@ -86,7 +86,7 @@ end
 
 ns.PoisonReagentIDs = poisonReagentIDs
 
-local popup, popupRecipe, popupSummary, popupStatus, buyButton
+local popup, popupRecipe, popupSummary, popupStatus, popupQuantity, recipeDropdown, buyButton
 local materialRows = {}
 local autoAttempted = false
 local currentVendorKey
@@ -171,6 +171,8 @@ local function updatePopup()
 		return
 	end
 	popupRecipe:SetText(string.format("%d x %s | reagent shopping only", plan.targetCount, plan.recipe.label))
+	popupQuantity:SetText(tostring(plan.targetCount))
+	recipeDropdown:Refresh()
 	local requested, buyable = 0, 0
 	for index, rowText in ipairs(materialRows) do
 		local row = plan.rows[index]
@@ -190,7 +192,7 @@ local function updatePopup()
 	end
 	local soldCount = 0
 	for _, row in ipairs(plan.rows) do if row.vendorIndex then soldCount = soldCount + 1 end end
-	popupSummary:SetText(string.format("%d of %d reagent types sold here | total %s",
+	popupSummary:SetText(string.format("%d of %d reagent types sold here | estimated reagent cost for this batch: %s",
 		soldCount, #plan.rows, GetMoneyString(plan.totalCost)))
 	if feedback ~= "" then
 		popupStatus:SetText(feedback)
@@ -260,30 +262,89 @@ end
 
 function ns.InitializeShopping()
 	popup = CreateFrame("Frame", "RoguetastiqVendorShopping", UIParent, "BackdropTemplate")
-	popup:SetSize(430, 250)
+	popup:SetSize(470, 340)
 	popup:SetFrameStrata("DIALOG")
 	popup:SetClampedToScreen(true)
 	popup:EnableMouse(true)
 	popup:SetBackdrop({ bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface/Tooltips/UI-Tooltip-Border", tile = true, tileSize = 16, edgeSize = 12, insets = { left = 3, right = 3, top = 3, bottom = 3 } })
 	popup:SetBackdropColor(0.035, 0.045, 0.065, 0.98)
 	popupRecipe = popup:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	popupRecipe:SetPoint("TOPLEFT", popup, "TOPLEFT", 16, -16)
+	popupRecipe:SetPoint("TOPLEFT", popup, "TOPLEFT", 16, -14)
+	local recipeLabel = popup:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	recipeLabel:SetPoint("TOPLEFT", popup, "TOPLEFT", 16, -31)
+	recipeLabel:SetText("Poison recipe")
+	local recipeOptions = {}
+	local romanRanks = { "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X" }
+	for _, recipe in ipairs(ns.Catalog.recipes) do
+		local familyKey, rank = recipe.key:match("^([%a]+)(%d+)$")
+		local family = familyKey and ns.Catalog.poisons[familyKey]
+		local label = family and romanRanks[tonumber(rank)]
+			and (family.label .. " " .. romanRanks[tonumber(rank)]) or recipe.label
+		recipeOptions[#recipeOptions + 1] = {
+			key = recipe.key,
+			label = label,
+			buttonLabel = label,
+			family = family and family.label or recipe.label,
+			rank = tonumber(rank) or 0,
+		}
+	end
+	table.sort(recipeOptions, function(a, b)
+		if a.family ~= b.family then return a.family < b.family end
+		return a.rank > b.rank
+	end)
+	recipeDropdown = ns.MakeDropdown(popup, 250, 25, "TOPLEFT", popup, "TOPLEFT", 16, -38,
+		recipeOptions,
+		function()
+			for _, option in ipairs(recipeOptions) do
+				if option.key == (RoguetastiqDB.shoppingRecipeKey or "instant6") then return option end
+			end
+			return recipeOptions[1]
+		end,
+		function(option)
+			RoguetastiqDB.shoppingRecipeKey = option.key
+			feedback = ""
+			updatePopup()
+		end)
+	local quantityLabel = popup:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	quantityLabel:SetPoint("TOPLEFT", popup, "TOPLEFT", 286, -31)
+	quantityLabel:SetText("Amount to make")
+	popupQuantity = popup:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	popupQuantity:SetPoint("TOPLEFT", popup, "TOPLEFT", 286, -55)
+	local function adjustQuantity(delta)
+		RoguetastiqDB.shoppingCount = math.max(1, math.min(200,
+			(RoguetastiqDB.shoppingCount or 20) + delta))
+		feedback = ""
+		updatePopup()
+	end
+	for index, option in ipairs({
+		{ label = "-5", delta = -5 }, { label = "-1", delta = -1 },
+		{ label = "+1", delta = 1 }, { label = "+5", delta = 5 },
+	}) do
+		local delta = option.delta
+		local button = CreateFrame("Button", "RoguetastiqVendorQuantity" .. (option.delta < 0 and "Minus" or "Plus") .. math.abs(option.delta), popup, "UIPanelButtonTemplate")
+		button:SetSize(34, 23)
+		button:SetPoint("TOPLEFT", popup, "TOPLEFT", 316 + (index - 1) * 36, -51)
+		button:SetText(option.label)
+		button:SetScript("OnClick", function() adjustQuantity(delta) end)
+	end
 	popupSummary = popup:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-	popupSummary:SetPoint("TOPLEFT", popupRecipe, "BOTTOMLEFT", 0, -10)
+	popupSummary:SetPoint("TOPLEFT", popup, "TOPLEFT", 16, -83)
+	popup.summary = popupSummary
+	popup.recipeDropdown = recipeDropdown
 	for index = 1, 4 do
 		local row = popup:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		row:SetPoint("TOPLEFT", popup, "TOPLEFT", 16, -66 - (index - 1) * 19)
-		row:SetWidth(398)
+		row:SetPoint("TOPLEFT", popup, "TOPLEFT", 16, -105 - (index - 1) * 20)
+		row:SetWidth(438)
 		row:SetJustifyH("LEFT")
 		materialRows[index] = row
 	end
 	popupStatus = popup:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	popupStatus:SetPoint("BOTTOMLEFT", popup, "BOTTOMLEFT", 16, 48)
-	popupStatus:SetWidth(398)
+	popupStatus:SetWidth(438)
 	popupStatus:SetJustifyH("LEFT")
 	local closeButton = CreateFrame("Button", nil, popup, "UIPanelCloseButton")
 	closeButton:SetPoint("TOPRIGHT", popup, "TOPRIGHT", -2, -2)
-	buyButton = CreateFrame("Button", nil, popup, "UIPanelButtonTemplate")
+	buyButton = CreateFrame("Button", "RoguetastiqVendorBuyButton", popup, "UIPanelButtonTemplate")
 	buyButton:SetSize(180, 28)
 	buyButton:SetPoint("BOTTOMLEFT", popup, "BOTTOMLEFT", 14, 12)
 	buyButton:SetScript("OnClick", function() requestPurchase(false) end)

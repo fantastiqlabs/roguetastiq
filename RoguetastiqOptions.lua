@@ -130,6 +130,7 @@ local function makeDropdown(parent, width, height, point, relative, relativePoin
 	updateLabel()
 	return button
 end
+ns.MakeDropdown = makeDropdown
 
 local function modifierLabel(modifier)
 	if modifier == "left" then return "Left click" end
