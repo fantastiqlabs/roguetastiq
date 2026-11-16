@@ -40,6 +40,39 @@ local mockedMixins = { MapCanvasPinMixin = {}, MapCanvasDataProviderMixin = {} }
 _G.MapCanvasPinMixin = mockedMixins.MapCanvasPinMixin
 _G.MapCanvasDataProviderMixin = mockedMixins.MapCanvasDataProviderMixin
 _G.CreateFromMixins = function() return {} end
+local createdFrames = {}
+local frameMethods = {}
+for _, method in ipairs({ "SetSize", "SetFrameStrata", "SetMouseMotionEnabled", "EnableMouse",
+	"SetPoint", "ClearAllPoints", "SetFrameLevel", "Show", "Hide" }) do
+	frameMethods[method] = function() end
+end
+function frameMethods:GetFrameLevel() return 1 end
+function frameMethods:CreateTexture()
+	return setmetatable({}, { __index = {
+		SetAllPoints = function() end,
+		SetTexture = function() end,
+		SetVertexColor = function() end,
+	} })
+end
+function frameMethods:SetScript(name, callback)
+	self.scripts[name] = callback
+end
+CreateFrame = function()
+	local frame = setmetatable({ isFrame = true, scripts = {} }, { __index = frameMethods })
+	createdFrames[#createdFrames + 1] = frame
+	return frame
+end
+Minimap = setmetatable({ isFrame = true }, { __index = frameMethods })
+GameTooltip = {
+	SetOwner = function(_, owner)
+		assert(owner and owner.isFrame, "tooltip owner must be a UI frame")
+		GameTooltip.owner = owner
+	end,
+	AddLine = function() end,
+	Show = function() end,
+}
+GameTooltip_Hide = function() end
+RoguetastiqDB = {}
 loadfile(root .. "/RoguetastiqMaps.lua")("Roguetastiq", ns)
 local clusters = ns.ClusterMapLocations({
 	{ mapID = 1454, x = 0.431, y = 0.536, name = "Shenthul" },
@@ -48,6 +81,16 @@ local clusters = ns.ClusterMapLocations({
 })
 equal(#clusters, 2, "nearby map pins are grouped")
 equal(#clusters[1].locations, 2, "group keeps every NPC for its tooltip")
+
+ns.InitializeMaps()
+local minimapPin = createdFrames[1]
+minimapPin.scripts.OnEnter(minimapPin)
+equal(GameTooltip.owner, minimapPin, "minimap tooltip uses its actual pin frame as owner")
+local mapPin = setmetatable({ isFrame = true, group = { locations = { ns.MapLocations[1] } } },
+	{ __index = RoguetastiqMapPinMixin })
+mapPin.Icon = { SetTexture = function() end, SetVertexColor = function() end }
+mapPin:OnMouseEnter()
+equal(GameTooltip.owner, mapPin, "world map tooltip uses its actual pin frame as owner")
 
 local x, y = ns.MinimapOffset(0, 100, 200, 100, false, 0)
 equal(x, 0, "north-up X projection")
