@@ -63,10 +63,10 @@ end
 
 ns.ClusterMapLocations = clusterLocations
 
-local function tooltipLines(pin)
-	if not pin.group then return end
-	GameTooltip:SetOwner(pin, "ANCHOR_RIGHT")
-	for _, location in ipairs(pin.group.locations) do
+local function tooltipLines(owner, group)
+	if not group then return end
+	GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
+	for _, location in ipairs(group.locations) do
 		GameTooltip:AddLine(location.name, 1, 0.85, 0.35)
 		GameTooltip:AddLine(location.title .. " | " .. location.zone, 1, 1, 1)
 		for _, category in ipairs(ns.MapCategories) do
@@ -100,7 +100,7 @@ function RoguetastiqMapPinMixin:OnAcquired(group)
 end
 
 function RoguetastiqMapPinMixin:OnMouseEnter()
-	tooltipLines(self)
+	tooltipLines(self, self.group)
 end
 
 function RoguetastiqMapPinMixin:OnMouseLeave()
@@ -152,7 +152,7 @@ local function createMinimapPin(location)
 	icon:SetTexture(category.icon)
 	icon:SetVertexColor(category.r, category.g, category.b)
 	pin:SetScript("OnEnter", function(self)
-		tooltipLines({ group = { locations = { self.location } } })
+		tooltipLines(self, { locations = { self.location } })
 	end)
 	pin:SetScript("OnLeave", GameTooltip_Hide)
 	pin:Hide()
