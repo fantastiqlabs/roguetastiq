@@ -24,6 +24,7 @@ Roguetastiq keeps the two essentials visible and the rest out of the way. Its Ma
 
 - Track poison and sharpening-stone status independently on both weapons.
 - Let you set time and charge warnings.
+- Keep the coating bar stable through combat lockdown; visibility changes apply after combat ends.
 - Unlock the bar, move it to your preferred screen position, lock it, and choose its size.
 - Map normal, Shift, Ctrl, and Alt clicks through dropdowns for each hand.
 - Prefer the highest rank you have in your bags within each selected poison family.
@@ -37,9 +38,9 @@ Roguetastiq keeps the two essentials visible and the rest out of the way. Its Ma
 
 The poison picker is restricted to poisons Rogues can currently learn from a poison trainer in WoW: Forever. Entries found only in unused client data stay out of the picker.
 
-## Upcoming 0.0.10 preview
+## Current 0.0.11 preview
 
-The 0.0.10 preview adds recipe/rank and batch-size selectors directly in the poison-vendor popup. Recipe ranks are listed highest-first within each family, and the estimated cost and missing reagents update when you change the selection. Purchases still buy only available missing reagents; the addon does not craft poisons.
+The 0.0.11 preview fixes combat-time protected calls when Roguetastiq updates the coating bar's visibility. It also includes the vendor shopping, configurable reminders, Forever NPC map markers, macro creation, and saved-position fixes from earlier previews. Vendor purchases, reminder triggers, macro behavior, and marker placement still need a live-client check in the current Forever client.
 
 Supply reminders are configurable in the **Supplies** options tab. Fadeleaf
 reminders include bag count; Flash Powder warnings can be disabled and have an
@@ -89,6 +90,7 @@ python3 scripts/package.py
 lua5.4 tests/shopping-plan.lua
 lua5.4 tests/vendor-session.lua
 lua5.4 tests/map-markers.lua .
+lua5.4 tests/combat-visibility.lua
 lua5.4 tests/macro-food.lua .
 ```
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.0.11 — 2026-11-17
+
+### Fixed
+
+- Deferred application-bar visibility changes until combat ends, avoiding protected `Show()` and `Hide()` calls while secure action buttons are locked down.
+- Added a regression check for both visibility directions during combat and after combat.
+
 ## 0.0.10 — 2026-11-15
 
 ### Added
