@@ -27,6 +27,8 @@ jobs:
         run: lua5.4 tests/vendor-session.lua
       - name: Test Forever NPC map catalog and projection
         run: lua5.4 tests/map-markers.lua .
+      - name: Test combat-safe application bar visibility
+        run: lua5.4 tests/combat-visibility.lua
       - name: Test macro food references
         run: lua5.4 tests/macro-food.lua .
       - name: Test coating bar position persistence
