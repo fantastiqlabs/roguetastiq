@@ -203,6 +203,7 @@ function ns.Render()
 		button.stoneLabel:SetText("STONE")
 	end
 	local hideInCity = RoguetastiqDB.hideBarInCities and IsResting and IsResting()
+	if InCombatLockdown() then return end
 	if show and not hideInCity then ns.Bar:Show() else ns.Bar:Hide() end
 end
 
