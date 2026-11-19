@@ -1,4 +1,4 @@
-local _, ns = ...
+local addonName, ns = ...
 
 local choiceRows = {}
 local optionsPanel
@@ -751,6 +751,12 @@ function ns.InitializeInterface()
 	font(settingsCanvas, "Roguetastiq - The giga rogue toolkit!", "GameFontNormalLarge", "TOPLEFT", settingsCanvas, "TOPLEFT", 20, -14)
 	font(settingsCanvas, "Choose a settings section from the AddOns menu.", "GameFontHighlight",
 		"TOPLEFT", settingsCanvas, "TOPLEFT", 20, -46)
+	local getAddonMetadata = (C_AddOns and C_AddOns.GetAddOnMetadata) or GetAddOnMetadata
+	local version = getAddonMetadata and getAddonMetadata(addonName, "Version")
+	if version and version ~= "" then
+		font(settingsCanvas, "Version " .. version, "GameFontHighlight",
+			"TOPLEFT", settingsCanvas, "TOPLEFT", 20, -70)
+	end
 	local tabSpecs = {
 		{ key = "qol", label = "QOL" },
 		{ key = "macros", label = "Macros" },

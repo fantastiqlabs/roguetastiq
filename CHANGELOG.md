@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Show the installed Roguetastiq version in the in-game addon options.
+
 ## 0.0.11 — 2026-11-17
 
 ### Fixed
