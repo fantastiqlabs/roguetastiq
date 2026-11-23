@@ -1,4 +1,6 @@
 local ns = {}
+assert(loadfile("RoguetastiqCatalog.lua"))("Roguetastiq", ns)
+assert(loadfile("RoguetastiqLocations.lua"))("Roguetastiq", ns)
 assert(loadfile("RoguetastiqShopping.lua"))("Roguetastiq", ns)
 
 local recipe = {
@@ -40,9 +42,16 @@ local extended = ns.CalculatePurchasePlan(recipe, 1, {
 	{ itemID = 2928, index = 3, price = 50, stackCount = 1, numAvailable = -1, isPurchasable = true, hasExtendedCost = true },
 }, {}, 4, 10000)
 assert(extended.rows[1].buy == 0 and extended.rows[1].reasons.extendedCost)
-assert(not ns.IsPoisonVendor({
+assert(not ns.IsPoisonVendor("General Goods", {
 	{ itemID = 3371, index = 1, isPurchasable = true },
 }), "vial-only general vendors do not open the poison popup")
-assert(ns.IsPoisonVendor(vendor), "vendors selling poison reagents are recognized")
+assert(not ns.IsPoisonVendor("Jasper Fel", {
+	{ itemID = 9999, index = 1, isPurchasable = true },
+}), "a known dealer must have relevant stock")
+assert(not ns.IsPoisonVendor("Ormok", vendor), "a Rogue trainer does not qualify")
+assert(ns.IsPoisonVendor("Rekkul", vendor), "a known poison vendor with reagents qualifies")
+assert(ns.IsPoisonVendor("Jasper Fel", {
+	{ itemID = 6947, index = 1, isPurchasable = true },
+}), "a known shady dealer selling finished poison qualifies")
 
 print("shopping-plan checks passed")

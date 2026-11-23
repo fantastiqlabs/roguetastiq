@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.0.12 — 2026-11-23
+
+### Fixed
+
+- Show the reagent shopping popup only at catalogued poison vendors and Shady Dealers with relevant stock. Opt-in auto-buy follows the same check.
+- Split large reagent orders at the merchant quantity limit and report remaining materials after checking bags.
+
+### Changed
+
+- Choose poison ranks directly from buttons in the vendor popup.
+
+Live-client verification of vendor purchases is pending.
+
 ## 0.0.11 — 2026-11-17
 
 ### Fixed
