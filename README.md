@@ -38,9 +38,9 @@ Roguetastiq keeps the two essentials visible and the rest out of the way. Its Ma
 
 The poison picker is restricted to poisons Rogues can currently learn from a poison trainer in WoW: Forever. Entries found only in unused client data stay out of the picker.
 
-## Current 0.0.11 preview
+## Current 0.0.12 preview
 
-The 0.0.11 preview fixes combat-time protected calls when Roguetastiq updates the coating bar's visibility. It also includes the vendor shopping, configurable reminders, Forever NPC map markers, macro creation, and saved-position fixes from earlier previews. Vendor purchases, reminder triggers, macro behavior, and marker placement still need a live-client check in the current Forever client.
+The 0.0.12 preview adds direct poison rank buttons and splits large orders at the merchant quantity limit. The shopping popup opens at catalogued poison vendors and Shady Dealers with relevant stock. Vendor purchases, reminder triggers, macro behavior, and marker placement still need a live-client check in the current Forever client.
 
 Supply reminders are configurable in the **Supplies** options tab. Fadeleaf
 reminders include bag count; Flash Powder warnings can be disabled and have an

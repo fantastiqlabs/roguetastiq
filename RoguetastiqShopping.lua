@@ -72,22 +72,23 @@ function ns.CalculatePurchasePlan(recipe, targetCount, vendorItems, inventory, f
 	return { recipe = recipe, targetCount = targetCount, rows = rows, totalCost = totalCost, remainingMoney = moneyLeft, remainingSlots = slotsLeft }
 end
 
-local poisonReagentIDs = { 2928, 2930, 5173, 8923, 8924 }
-
-function ns.IsPoisonVendor(vendorItems)
-	local sold = {}
-	for _, item in ipairs(vendorItems or {}) do
-		if item.itemID and item.isPurchasable and not item.hasExtendedCost and not item.currencyID then
-			sold[item.itemID] = true
+function ns.IsPoisonVendor(vendorName, vendorItems)
+	if not vendorName then return false end
+	for _, location in ipairs(ns.MapLocations) do
+		if location.name == vendorName and (location.services.poisonVendor or location.services.shadyDealer) then
+			for _, item in ipairs(vendorItems) do
+				if item.isPurchasable and not item.hasExtendedCost and not item.currencyID then
+					if ns.Catalog.materials[item.itemID] then return true end
+					for _, recipe in ipairs(ns.Catalog.recipes) do
+						if recipe.itemID == item.itemID then return true end
+					end
+				end
+			end
+			return false
 		end
-	end
-	for _, itemID in ipairs(poisonReagentIDs) do
-		if sold[itemID] then return true end
 	end
 	return false
 end
-
-ns.PoisonReagentIDs = poisonReagentIDs
 
 local popup, popupRecipe, popupSummary, popupStatus, popupQuantity, buyButton
 local materialRows, recipeButtons, quantityButtons = {}, {}, {}
@@ -151,7 +152,7 @@ end
 local function getSelectedPlan()
 	if not merchantIsOpen() then return nil end
 	local recipe, vendorItems = ns.FindRecipe(RoguetastiqDB.shoppingRecipeKey), readMerchantItems()
-	if not ns.IsPoisonVendor(vendorItems) then return nil end
+	if not ns.IsPoisonVendor(UnitName("npc"), vendorItems) then return nil end
 	local freeSlots = C_Container.CalculateTotalNumberOfFreeBagSlots()
 	return ns.CalculatePurchasePlan(recipe, RoguetastiqDB.shoppingCount, vendorItems, readBagState(), freeSlots, GetMoney()), vendorItems
 end
@@ -397,7 +398,7 @@ function ns.RefreshVendorShopping()
 	if not merchantIsOpen() then popup:Hide(); return end
 	if not RoguetastiqDB.vendorPopupEnabled then popup:Hide(); return end
 	local vendorItems = readMerchantItems()
-	if not ns.IsPoisonVendor(vendorItems) then popup:Hide(); return end
+	if not ns.IsPoisonVendor(UnitName("npc"), vendorItems) then popup:Hide(); return end
 	if not popup:IsShown() then
 		popup:ClearAllPoints()
 		if MerchantFrame then popup:SetPoint("TOPLEFT", MerchantFrame, "TOPRIGHT", 10, 0)

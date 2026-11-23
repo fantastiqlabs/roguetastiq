@@ -18,6 +18,7 @@ local purchases, timers, namedFrames = {}, {}, {}
 local bags = {}
 local fillBags = false
 local vendorGUID = "poison-vendor-1"
+local vendorName = "Rekkul"
 local vendorItemID = 2928
 local methods = {}
 function methods:SetSize() end
@@ -65,7 +66,7 @@ GetMoney = function() return 5000 end
 GetMoneyString = function(value) return tostring(value) end
 GetMerchantItemMaxStack = function() return 20 end
 UnitGUID = function() return vendorGUID end
-UnitName = function() return "Poison Vendor" end
+UnitName = function() return vendorName end
 InCombatLockdown = function() return false end
 MERCHANT_HIGH_PRICE_COST = 1500000
 BuyMerchantItem = function(index, quantity)
@@ -76,6 +77,7 @@ BuyMerchantItem = function(index, quantity)
 end
 C_Timer = { After = function(_, callback) timers[#timers + 1] = callback end }
 
+assert(loadfile("RoguetastiqLocations.lua"))("Roguetastiq", ns)
 assert(loadfile("RoguetastiqShopping.lua"))("Roguetastiq", ns)
 RoguetastiqDB = { shoppingRecipeKey = "instant1", shoppingCount = 20, autoBuyMaterials = false, vendorPopupEnabled = true }
 ns.InitializeShopping()
@@ -118,17 +120,19 @@ assert(#purchases == 0, "the auto-buy preference defaults off")
 
 ns.CloseVendorShopping()
 vendorGUID = "ordinary-vendor"
-vendorItemID = 9999
+vendorName = "Trade Supplies Vendor"
+vendorItemID = 2928
 RoguetastiqDB.autoBuyMaterials = true
 ns.OnMerchantShow()
-assert(not namedFrames.RoguetastiqVendorShopping:IsShown(), "ordinary vendors do not show poison shopping")
+assert(not namedFrames.RoguetastiqVendorShopping:IsShown(), "ordinary vendors do not show poison shopping even with a shared reagent")
 ns.AutoBuyVendorMaterials()
 while #timers > 0 do table.remove(timers, 1)() end
 assert(#purchases == 0, "ordinary vendors never auto-buy poison reagents")
 
 RoguetastiqDB.autoBuyMaterials = true
 ns.CloseVendorShopping()
-vendorGUID = "poison-vendor-1"
+vendorGUID = "shady-dealer"
+vendorName = "Jasper Fel"
 vendorItemID = 2928
 ns.OnMerchantShow()
 ns.AutoBuyVendorMaterials()
