@@ -39,6 +39,9 @@ function ns.CalculatePurchasePlan(recipe, targetCount, vendorItems, inventory, f
 		elseif vendor.hasExtendedCost or vendor.currencyID then
 			buy = 0
 			reasons.extendedCost = true
+		elseif vendor.showNonrefundablePrompt then
+			buy = 0
+			reasons.confirmation = true
 		else
 			if stockLimit < requested then reasons.stock = true end
 			if moneyLimit < requested then reasons.money = true end
@@ -86,8 +89,9 @@ end
 
 ns.PoisonReagentIDs = poisonReagentIDs
 
-local popup, popupRecipe, popupSummary, popupStatus, popupQuantity, recipeDropdown, buyButton
-local materialRows = {}
+local popup, popupRecipe, popupSummary, popupStatus, popupQuantity, buyButton
+local materialRows, recipeButtons, quantityButtons = {}, {}, {}
+local purchasePending = false
 local autoAttempted = false
 local currentVendorKey
 local vendorSession = 0
@@ -113,6 +117,7 @@ local function readMerchantItems()
 				isPurchasable = info.isPurchasable,
 				hasExtendedCost = info.hasExtendedCost,
 				currencyID = info.currencyID,
+				showNonrefundablePrompt = info.showNonrefundablePrompt,
 			}
 		end
 	end
@@ -155,6 +160,7 @@ local function reasonText(row)
 	if row.reasons.notSoldHere then return "not sold here" end
 	if row.reasons.notPurchasable then return "not purchasable" end
 	if row.reasons.extendedCost then return "non-gold cost" end
+	if row.reasons.confirmation then return "use merchant to confirm" end
 	if row.reasons.stock and row.reasons.money then return "stock and funds limit" end
 	if row.reasons.stock then return "vendor stock limit" end
 	if row.reasons.money and row.reasons.bagSpace then return "funds and bag space limit" end
@@ -172,7 +178,12 @@ local function updatePopup()
 	end
 	popupRecipe:SetText(string.format("%d x %s | reagent shopping only", plan.targetCount, plan.recipe.label))
 	popupQuantity:SetText(tostring(plan.targetCount))
-	recipeDropdown:Refresh()
+	for key, button in pairs(recipeButtons) do
+		local selected = key == plan.recipe.key
+		button:SetEnabled(not purchasePending and not selected)
+		if selected then button:LockHighlight() else button:UnlockHighlight() end
+	end
+	for _, button in ipairs(quantityButtons) do button:SetEnabled(not purchasePending) end
 	local requested, buyable = 0, 0
 	for index, rowText in ipairs(materialRows) do
 		local row = plan.rows[index]
@@ -205,13 +216,14 @@ local function updatePopup()
 	end
 	local label = buyable == requested and "Buy required materials" or "Buy available materials"
 	buyButton:SetText(label)
-	buyButton:SetEnabled(buyable > 0 and plan.totalCost < (MERCHANT_HIGH_PRICE_COST or 1500000))
+	buyButton:SetEnabled(not purchasePending and buyable > 0 and plan.totalCost < (MERCHANT_HIGH_PRICE_COST or 1500000))
 	if plan.totalCost >= (MERCHANT_HIGH_PRICE_COST or 1500000) then
 		popupStatus:SetText("High-value purchase: use Blizzard's merchant controls to confirm each item.")
 	end
 end
 
 local function requestPurchase(isAutomatic)
+	if purchasePending then return false end
 	if not merchantIsOpen() or InCombatLockdown() then
 		feedback = "Open a vendor out of combat to purchase materials."
 		updatePopup()
@@ -224,37 +236,56 @@ local function requestPurchase(isAutomatic)
 		updatePopup()
 		return false
 	end
-	local before = {}
-	for _, row in ipairs(plan.rows) do before[row.itemID] = row.requested end
-	local requestedCount = 0
+	local requestedCount, blocked = 0, false
+	local session = vendorSession
+	purchasePending = true
 	for _, row in ipairs(plan.rows) do
 		if row.buy > 0 and row.vendorIndex then
-			local ok, err = pcall(BuyMerchantItem, row.vendorIndex, row.buy)
-			if not ok then
-				feedback = "The client blocked this purchase request. Use the merchant's own item buttons."
-				if isAutomatic then feedback = "Auto-buy was blocked by the client; use the merchant's own item buttons." end
-				updatePopup()
-				return false, err
+			local limit = GetMerchantItemMaxStack and GetMerchantItemMaxStack(row.vendorIndex)
+			if not limit or limit < 1 then
+				blocked = true
+				break
 			end
-			requestedCount = requestedCount + row.buy
+			local remaining = row.buy
+			while remaining > 0 do
+				local quantity = math.min(remaining, limit)
+				local ok = pcall(BuyMerchantItem, row.vendorIndex, quantity)
+				if not ok then
+					blocked = true
+					break
+				end
+				requestedCount = requestedCount + quantity
+				remaining = remaining - quantity
+			end
+			if blocked then break end
 		end
 	end
+	local blockedMessage = isAutomatic and "Auto-buy was blocked. Use the merchant's item buttons."
+		or "The client blocked a purchase request. Use the merchant's item buttons."
 	if requestedCount == 0 then
-		feedback = "No missing reagents are currently available to buy."
+		purchasePending = false
+		feedback = blocked and blockedMessage or "No missing reagents are currently available to buy."
 		updatePopup()
 		return false
 	end
-	feedback = string.format("Purchase requested for %d reagent items; checking the updated bags...", requestedCount)
+	feedback = string.format("Checking bags after requesting %d reagent items...", requestedCount)
 	updatePopup()
 	C_Timer.After(0.7, function()
-		local updated = getSelectedPlan()
-		if not updated then return end
+		if session ~= vendorSession then return end
+		purchasePending = false
+		local inventory = readBagState()
 		local acquired, remaining = 0, 0
-		for _, row in ipairs(updated.rows) do
-			acquired = acquired + math.max(0, (before[row.itemID] or 0) - row.requested)
-			remaining = remaining + row.requested
+		for _, row in ipairs(plan.rows) do
+			local have = (inventory[row.itemID] or {}).count or 0
+			acquired = acquired + math.max(0, math.min(row.buy, have - row.have))
+			remaining = remaining + math.max(0, row.required - have)
 		end
 		feedback = string.format("Added %d reagent items to bags; %d still needed.", acquired, remaining)
+		if blocked then
+			feedback = feedback .. " " .. blockedMessage
+		elseif acquired < requestedCount and remaining > 0 then
+			feedback = feedback .. " Check the vendor or try again."
+		end
 		updatePopup()
 	end)
 	return true
@@ -262,7 +293,6 @@ end
 
 function ns.InitializeShopping()
 	popup = CreateFrame("Frame", "RoguetastiqVendorShopping", UIParent, "BackdropTemplate")
-	popup:SetSize(470, 340)
 	popup:SetFrameStrata("DIALOG")
 	popup:SetClampedToScreen(true)
 	popup:EnableMouse(true)
@@ -283,7 +313,6 @@ function ns.InitializeShopping()
 		recipeOptions[#recipeOptions + 1] = {
 			key = recipe.key,
 			label = label,
-			buttonLabel = label,
 			family = family and family.label or recipe.label,
 			rank = tonumber(rank) or 0,
 		}
@@ -292,25 +321,31 @@ function ns.InitializeShopping()
 		if a.family ~= b.family then return a.family < b.family end
 		return a.rank > b.rank
 	end)
-	recipeDropdown = ns.MakeDropdown(popup, 250, 25, "TOPLEFT", popup, "TOPLEFT", 16, -38,
-		recipeOptions,
-		function()
-			for _, option in ipairs(recipeOptions) do
-				if option.key == (RoguetastiqDB.shoppingRecipeKey or "instant6") then return option end
-			end
-			return recipeOptions[1]
-		end,
-		function(option)
-			RoguetastiqDB.shoppingRecipeKey = option.key
+	for index, option in ipairs(recipeOptions) do
+		local key = option.key
+		local button = CreateFrame("Button", nil, popup, "UIPanelButtonTemplate")
+		button:SetSize(172, 24)
+		button:SetPoint("TOPLEFT", popup, "TOPLEFT", 16 + ((index - 1) % 3) * 178,
+			-48 - math.floor((index - 1) / 3) * 26)
+		button:SetText(option.label)
+		button:SetScript("OnClick", function()
+			if purchasePending then return end
+			RoguetastiqDB.shoppingRecipeKey = key
 			feedback = ""
 			updatePopup()
 		end)
+		recipeButtons[key] = button
+	end
+	popup.recipeButtons = recipeButtons
+	local detailsTop = 48 + math.ceil(#recipeOptions / 3) * 26
+	popup:SetSize(560, detailsTop + 202)
 	local quantityLabel = popup:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-	quantityLabel:SetPoint("TOPLEFT", popup, "TOPLEFT", 286, -31)
+	quantityLabel:SetPoint("TOPLEFT", popup, "TOPLEFT", 16, -detailsTop - 7)
 	quantityLabel:SetText("Amount to make")
 	popupQuantity = popup:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	popupQuantity:SetPoint("TOPLEFT", popup, "TOPLEFT", 286, -55)
+	popupQuantity:SetPoint("TOPLEFT", popup, "TOPLEFT", 128, -detailsTop - 7)
 	local function adjustQuantity(delta)
+		if purchasePending then return end
 		RoguetastiqDB.shoppingCount = math.max(1, math.min(200,
 			(RoguetastiqDB.shoppingCount or 20) + delta))
 		feedback = ""
@@ -323,25 +358,26 @@ function ns.InitializeShopping()
 		local delta = option.delta
 		local button = CreateFrame("Button", "RoguetastiqVendorQuantity" .. (option.delta < 0 and "Minus" or "Plus") .. math.abs(option.delta), popup, "UIPanelButtonTemplate")
 		button:SetSize(34, 23)
-		button:SetPoint("TOPLEFT", popup, "TOPLEFT", 316 + (index - 1) * 36, -51)
+		button:SetPoint("TOPLEFT", popup, "TOPLEFT", 170 + (index - 1) * 38, -detailsTop - 2)
 		button:SetText(option.label)
 		button:SetScript("OnClick", function() adjustQuantity(delta) end)
+		quantityButtons[index] = button
 	end
 	popupSummary = popup:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-	popupSummary:SetPoint("TOPLEFT", popup, "TOPLEFT", 16, -83)
+	popupSummary:SetPoint("TOPLEFT", popup, "TOPLEFT", 16, -detailsTop - 32)
 	popup.summary = popupSummary
-	popup.recipeDropdown = recipeDropdown
 	for index = 1, 4 do
 		local row = popup:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		row:SetPoint("TOPLEFT", popup, "TOPLEFT", 16, -105 - (index - 1) * 20)
-		row:SetWidth(438)
+		row:SetPoint("TOPLEFT", popup, "TOPLEFT", 16, -detailsTop - 54 - (index - 1) * 20)
+		row:SetWidth(528)
 		row:SetJustifyH("LEFT")
 		materialRows[index] = row
 	end
 	popupStatus = popup:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	popupStatus:SetPoint("BOTTOMLEFT", popup, "BOTTOMLEFT", 16, 48)
-	popupStatus:SetWidth(438)
+	popupStatus:SetWidth(528)
 	popupStatus:SetJustifyH("LEFT")
+	popup.status = popupStatus
 	local closeButton = CreateFrame("Button", nil, popup, "UIPanelCloseButton")
 	closeButton:SetPoint("TOPRIGHT", popup, "TOPRIGHT", -2, -2)
 	buyButton = CreateFrame("Button", "RoguetastiqVendorBuyButton", popup, "UIPanelButtonTemplate")
@@ -377,6 +413,7 @@ function ns.OnMerchantShow()
 	if currentVendorKey ~= vendorKey then
 		currentVendorKey = vendorKey
 		vendorSession = vendorSession + 1
+		purchasePending = false
 		autoAttempted = false
 	end
 	feedback = ""
@@ -395,6 +432,7 @@ function ns.AutoBuyVendorMaterials()
 end
 
 function ns.CloseVendorShopping()
+	purchasePending = false
 	autoAttempted = false
 	vendorSession = vendorSession + 1
 	currentVendorKey = nil
