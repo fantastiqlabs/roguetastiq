@@ -33,6 +33,8 @@ jobs:
         run: lua5.4 tests/macro-food.lua .
       - name: Test coating bar position persistence
         run: lua5.4 tests/bar-position.lua
+      - name: Test addon version metadata
+        run: lua5.4 tests/addon-version.lua
       - name: Build addon archive
         run: python3 scripts/package.py
       - name: Verify packaged shopping module
