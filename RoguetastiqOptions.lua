@@ -892,6 +892,9 @@ function ns.InitializeInterface()
 	font(optionsPanel, "Uses WoW's resting-area state; includes inns.",
 		"GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -205)
 	createContactSection()
+	local versionLabel = font(optionsPanel, "Installed version: " .. ns.GetAddonVersion(),
+		"GameFontHighlightSmall", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -430)
+	versionLabel:SetWidth(640)
 
 	optionsPanel = pages.maps
 	font(optionsPanel, "NPC MAP MARKERS", "GameFontNormal", "TOPLEFT", optionsPanel, "TOPLEFT", 20, -8)
