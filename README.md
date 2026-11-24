@@ -23,6 +23,7 @@ Roguetastiq keeps the two essentials visible and the rest out of the way. Its Ma
 ## Features
 
 - Track poison and sharpening-stone status independently on both weapons.
+- Show the installed addon version in the Addon Settings page.
 - Let you set time and charge warnings.
 - Keep the coating bar stable through combat lockdown; visibility changes apply after combat ends.
 - Unlock the bar, move it to your preferred screen position, lock it, and choose its size.
@@ -38,9 +39,9 @@ Roguetastiq keeps the two essentials visible and the rest out of the way. Its Ma
 
 The poison picker is restricted to poisons Rogues can currently learn from a poison trainer in WoW: Forever. Entries found only in unused client data stay out of the picker.
 
-## Current 0.0.12 preview
+## Current 0.0.13 preview
 
-The 0.0.12 preview adds direct poison rank buttons and splits large orders at the merchant quantity limit. The shopping popup opens at catalogued poison vendors and Shady Dealers with relevant stock. Vendor purchases, reminder triggers, macro behavior, and marker placement still need a live-client check in the current Forever client.
+The 0.0.13 preview adds the installed addon version to Addon Settings. It also includes the 0.0.12 vendor popup updates: direct poison rank buttons, orders split at the merchant quantity limit, and the popup limited to catalogued poison vendors and Shady Dealers with relevant stock. Vendor purchases, reminders, macro behavior, and marker placement still need a live-client check in the current Forever client.
 
 Supply reminders are configurable in the **Supplies** options tab. Fadeleaf
 reminders include bag count; Flash Powder warnings can be disabled and have an
