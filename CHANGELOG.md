@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.13 — 2026-11-24
+
+### Added
+
+- Show the installed addon version in the Addon Settings page, read from the addon's TOC metadata.
+
 ## 0.0.12 — 2026-11-23
 
 ### Fixed
