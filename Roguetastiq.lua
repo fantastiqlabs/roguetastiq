@@ -177,6 +177,11 @@ local function timeText(state)
 	return string.format("%s / %d", remaining, state.charges)
 end
 
+function ns.GetAddonVersion()
+	local getMetadata = C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata
+	return getMetadata and getMetadata("Roguetastiq", "Version") or "Unknown"
+end
+
 function ns.Render()
 	if not RoguetastiqDB or not ns.HandButtons then return end
 	local show = RoguetastiqDB.forceVisible
